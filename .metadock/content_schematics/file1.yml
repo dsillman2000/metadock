@@ -1,0 +1,12 @@
+content_schematics:
+
+  - name: my_guy
+    template: file1.md
+    target_formats: [ md ]
+    context: {}
+
+  - name: my_other_guy
+    template: file1.md
+    target_formats: [ txt ]
+    context: 
+      key_name: value_name

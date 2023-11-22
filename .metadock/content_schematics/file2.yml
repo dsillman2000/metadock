@@ -1,0 +1,11 @@
+content_schematics:
+
+  - name: using_other_category
+    template: category1/fat1.md
+    target_formats: [ md+html ]
+    context:
+      shopping_cart:
+      - item: banana
+        price: 5.00
+      - item: milk
+        price: 4.00
