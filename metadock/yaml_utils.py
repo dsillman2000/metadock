@@ -2,6 +2,14 @@ from typing import Any
 
 
 def flatten_merge_keys(yaml_dict: Any) -> dict:
+    """Flatten the merge keys ("<<") in a nested dictionary object.
+
+    Args:
+        yaml_dict (Any): Object whose merge keys will be flattened
+
+    Returns:
+        dict: Flattened representation of the nested dictionary object
+    """
     if not isinstance(yaml_dict, dict):
         return yaml_dict  # type: ignore
 

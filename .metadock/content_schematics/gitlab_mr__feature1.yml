@@ -1,22 +1,25 @@
 # JiraProject:
-#   project_name: str
-#   project_id: str
+#   type: object
+#   properties:
+#     project_name: string
+#     project_id: string
+#   required: [project_name, project_id]
 
 .JiraProject_IGDP: &JiraProject_IGDP
   project_name: IGDP
   project_id: "12001"
 
-# Stakeholder.Contact
-#   name: str
-#   email: str
-# 
-# Stakeholder:
-#   id: str
-#   contacts: 
-#     - Stakeholder.Contact
-#     - ...
-#   business_interest: str
-
+Stakeholder:
+  type: object
+  properties:
+    id: string
+    contacts:
+      type: array
+      items:
+        $ref: '#/definitions/Contact'
+    business_interest: 
+      type: string
+  required: [id, contacts]
 
 .Stakeholder_Service: &Stakeholder_Service 
   id: Service

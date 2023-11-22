@@ -19,8 +19,8 @@ class ValidationStatus(StrEnum):
     """Enumerated type for different top-level summary status values for project validation."""
 
     SUCCESS = auto()
-    FAILURE = auto()
     WARNING = auto()
+    FAILURE = auto()
 
 
 class MetadockProjectValidationResult(pydantic.BaseModel):
@@ -72,17 +72,44 @@ class MetadockProjectValidationResult(pydantic.BaseModel):
 
 
 class MetadockProject:
+    """Core abstraction for representing a Metadock project. Tracks and statefully manages the templated_documents,
+    content_schematics, and generated_documents directories.
+
+    Attributes:
+        directory (Path): Path to the root of the metadock project directory (.metadock/)
+
+    Cached Properties:
+        content_schematics_directory (Path): Path to the content_schematics directory for the project
+        content_schematics (dict[str, MetadockContentSchematic]): Dictionary of content schematics, keyed by name
+        generated_documents_directory (Path): Path to the generated_documents directory for the project
+        templated_documents_directory (Path): Path to the templated_documents directory for the project
+        templated_documents (dict[str, MetadockTemplatedDocument]): Dictionary of templated documents, keyed by project
+            relative path.
+    """
+
     directory: Path
 
     def __init__(self, directory: Path | str):
+        """Open an existing Metadock project directory.
+
+        Args:
+            directory (Path | str): .metadock directory to open
+        """
         self.directory = Path(directory)
 
     @cached_property
     def templated_documents_directory(self) -> Path:
+        """Path to the templated_documents directory for the project."""
         return self.directory / "templated_documents"
 
     @cached_property
     def templated_documents(self) -> dict[str, "MetadockTemplatedDocument"]:
+        """Returns a dictionary of templated documents, keyed by project relative path.
+
+        Returns:
+            dict[str, MetadockTemplatedDocument]: A dictionary containing MetadockTemplatedDocument objects,
+            where the keys are the project relative paths of the documents.
+        """
         template_objects = self.templated_documents_directory.glob("**/*.*")
         relative_template_files: list[Path] = list(
             tmpl.relative_to(self.templated_documents_directory) for tmpl in template_objects if tmpl.is_file()
@@ -96,10 +123,20 @@ class MetadockProject:
 
     @cached_property
     def content_schematics_directory(self) -> Path:
+        """Path to the content_schematics directory for the project"""
         return self.directory / "content_schematics"
 
     @cached_property
     def content_schematics(self) -> dict[str, "MetadockContentSchematic"]:
+        """Returns a dictionary of content schematics, keyed by name.
+
+        This method collects content schematics from YAML files in the content schematics directory.
+        Each content schematic is represented by a `MetadockContentSchematic` object.
+
+        Returns:
+            A dictionary of content schematics, where the keys are the names of the schematics and the values are the
+            `MetadockContentSchematic` objects.
+        """
         content_schematic_ymls = self.content_schematics_directory.glob("**/*.yml")
         content_schematics: dict[str, MetadockContentSchematic] = {}
 
@@ -116,9 +153,16 @@ class MetadockProject:
 
     @cached_property
     def generated_documents_directory(self) -> Path:
+        """Path to the generated_documents directory for the project"""
         return self.directory / "generated_documents"
 
     def build(self, schematics: Optional[list[str]] = None):
+        """Build the compiled documents for the specified schematics.
+
+        Args:
+            schematics (Optional[list[str]]): List of schematic names to build. If None, build all schematics.
+        """
+
         if schematics is None:
             schematics = list(self.content_schematics.keys())
 
@@ -133,11 +177,21 @@ class MetadockProject:
                     handle.write(str(compiled_document))
 
     def clean(self):
-        """Deletes all generated documents in the `generated_documents` project directory."""
+        """Deletes all generated documents in the `generated_documents` project directory.
+
+        This method removes all files and subdirectories within the `generated_documents_directory`
+        and recreates the directory afterwards.
+        """
         shutil.rmtree(self.generated_documents_directory)
         os.makedirs(self.generated_documents_directory)
 
     def validate(self) -> MetadockProjectValidationResult:
+        """Validates the Metadock project by checking the existence of required directories.
+
+        Returns:
+            MetadockProjectValidationResult: The validation result containing any failures or warnings.
+        """
+
         validation_result = MetadockProjectValidationResult()
 
         if not self.directory.exists():
@@ -163,6 +217,16 @@ class MetadockProject:
         return validation_result
 
     def list(self, schematic_globs: list[str] = [], template_globs: list[str] = []) -> list[str]:
+        """Retrieves a list of schematics based on the provided glob patterns for schematic names and template names.
+
+        Args:
+            schematic_globs (list[str], optional): List of glob patterns for schematic names. Defaults to [].
+            template_globs (list[str], optional): List of glob patterns for template names. Defaults to [].
+
+        Returns:
+            list[str]: A list of unique schematic names matching the provided glob patterns.
+        """
+
         schematics: list[str] = []
         for schematic_glob in schematic_globs:
             schematics += self._query_schematics_by_name_glob(schematic_glob)
@@ -171,6 +235,14 @@ class MetadockProject:
         return list(set((schematics)))
 
     def _query_schematics_by_name_glob(self, schematic_glob: str) -> "list[str]":
+        """Query the content schematics for the project by a glob pattern.
+
+        Args:
+            schematic_glob (str): The glob pattern to match against schematic names.
+
+        Returns:
+            list[str]: A list of schematic names that match the glob pattern.
+        """
         return [
             schematic_name
             for schematic_name in self.content_schematics
@@ -178,6 +250,14 @@ class MetadockProject:
         ]
 
     def _query_schematics_by_template_glob(self, template_glob: str) -> "list[str]":
+        """Query the content schematics for the project by a glob pattern on the template paths they use.
+
+        Args:
+            template_glob (str): The glob pattern to match against template paths.
+
+        Returns:
+            list[str]: A list of schematic names whose template match the glob pattern.
+        """
         return [
             schematic.name
             for schematic in self.content_schematics.values()
