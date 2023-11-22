@@ -1,40 +1,73 @@
-from functools import cached_property
+import fnmatch
 import os
+import shutil
+from enum import StrEnum, auto
+from functools import cached_property
 from pathlib import Path
 from typing import Any, Optional
-from enum import auto, StrEnum
+
 import jinja2
 import pydantic
-from metadock import exceptions
-from metadock.target_formats import MetadockTargetFormat, MetadockTargetFormatFactory
 import yaml
-import fnmatch
-import shutil
+
+from metadock import exceptions, yaml_utils
+from metadock.env import MetadockEnv
+from metadock.target_formats import MetadockTargetFormat, MetadockTargetFormatFactory
 
 
 class ValidationStatus(StrEnum):
+    """Enumerated type for different top-level summary status values for project validation."""
+
     SUCCESS = auto()
     FAILURE = auto()
     WARNING = auto()
 
 
 class MetadockProjectValidationResult(pydantic.BaseModel):
+    """Project validation result pydantic Model.
+
+    Attributes:
+        status (ValidationStatus): Enumerated value for overall validation status
+        failures (list[str]): List of failure messages emitted during validation
+        warnings (list[str]): List of warnings emitted during validation
+    """
+
     status: ValidationStatus = ValidationStatus.SUCCESS
     failures: list[str] = []
     warnings: list[str] = []
 
     def append_warning(self, warning_msg: str):
+        """Interface for adding a warning to a running project validation result. Transitions the top-level status:
+
+        SUCCESS -> WARNING
+        WARNING -> WARNING
+        FAILURE -> FAILURE
+
+        Args:
+            warning_msg (str): Message to associate with this warning.
+        """
         if self.status == ValidationStatus.SUCCESS.value:
             self.status = ValidationStatus.WARNING
         self.warnings.append(warning_msg)
 
     def append_failure(self, failure_msg: str):
+        """Interface for adding a failure to a running project validation result. Transitions the top-level status to
+        FAILURE if it isn't already.
+
+        Args:
+            failure_msg (str): Message to associate with this failure.
+        """
         if self.status != ValidationStatus.FAILURE.value:
             self.status = ValidationStatus.FAILURE
         self.failures.append(failure_msg)
 
     @property
     def ok(self) -> bool:
+        """Whether or not this project passed validation without failures.
+
+        Returns:
+            bool: If the project validation result was ok.
+        """
         return self.status.value in (ValidationStatus.SUCCESS, ValidationStatus.WARNING)
 
 
@@ -200,7 +233,7 @@ class MetadockContentSchematic(pydantic.BaseModel):
         for target_format in self.target_formats:
             target_format = MetadockTargetFormatFactory.target_format(target_format)
             templated_document = project.templated_documents[self.template]
-            rendered_document = templated_document.jinja_template().render(self.context)
+            rendered_document = templated_document.jinja_template().render(self.context | MetadockEnv().dict())
             post_processed_document = target_format.handler(rendered_document)
 
             compiled_targets[target_format.identifier] = post_processed_document
@@ -234,7 +267,7 @@ class MetadockContentSchematic(pydantic.BaseModel):
                     name=def_schematic["name"],
                     template=def_schematic["template"],
                     target_formats=def_schematic["target_formats"],
-                    context=def_schematic.get("context", {}),
+                    context=yaml_utils.flatten_merge_keys(def_schematic.get("context", {})),
                 )
             )
 

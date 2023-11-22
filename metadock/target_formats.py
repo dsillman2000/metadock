@@ -1,7 +1,7 @@
 import abc
 from typing import MutableMapping, Protocol, Type
 
-import markdown
+import marko
 
 from metadock import exceptions
 
@@ -110,5 +110,4 @@ class MdPlusHtmlTargetFormat(MetadockTargetFormat):
         Returns:
             str | bytes: HTML markup of the original Markdown document
         """
-        md = markdown.Markdown(extensions=["tables"])
-        return md.convert(str(rendered_document))
+        return marko.convert(str(rendered_document))

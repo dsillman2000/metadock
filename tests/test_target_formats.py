@@ -1,6 +1,6 @@
 import string
 
-import markdown
+import marko
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -17,7 +17,7 @@ def test_target_formats__factory_lookup():
     assert md_html_target_format.__class__.__name__ == "MdPlusHtmlTargetFormat"
     assert md_html_target_format.identifier == "md+html"
     assert md_html_target_format.file_extension == "html"
-    assert md_html_target_format.handler("my document") == "<p>my document</p>"
+    assert md_html_target_format.handler("my document") == "<p>my document</p>\n"
 
 
 @given(rendered_document=st.text(min_size=10, max_size=1000))
@@ -32,5 +32,5 @@ simple_paragraph_characters = st.text(min_size=10, max_size=1000, alphabet=strin
 @given(rendered_document=simple_paragraph_characters)
 def test_target_formats__md_html(rendered_document: str):
     md_html_format = MetadockTargetFormatFactory.target_format("md+html")
-    html_doc = markdown.markdown(rendered_document)
+    html_doc = marko.convert(rendered_document)
     assert md_html_format.handler(rendered_document) == html_doc

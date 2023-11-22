@@ -1,0 +1,65 @@
+# JiraProject:
+#   project_name: str
+#   project_id: str
+
+.JiraProject_IGDP: &JiraProject_IGDP
+  project_name: IGDP
+  project_id: "12001"
+
+# Stakeholder.Contact
+#   name: str
+#   email: str
+# 
+# Stakeholder:
+#   id: str
+#   contacts: 
+#     - Stakeholder.Contact
+#     - ...
+#   business_interest: str
+
+
+.Stakeholder_Service: &Stakeholder_Service 
+  id: Service
+  contacts:
+    - name: John Smith
+      email: john.smith@company.com
+    - name: Megan Richards
+      email: megan.richards@company.com
+  business_interest: Service operations reporting depends on exposure tables
+
+.Stakeholder_Analytics: &Stakeholder_Analytics
+  id: Analytics
+  contacts:
+    - name: Justin Edwards
+      email: justin.edwards@company.com
+    - name: Evan Hill
+      email: evan.hill@company.com
+    - name: Erika Ortega
+      email: erika.ortega@company.com
+
+
+content_schematics:
+
+  - name: gitlab_mr__feature1
+    template: gitlab_mr_template.md
+    target_formats: [ md+html, md ]
+
+    context:
+
+      jira:
+        <<: *JiraProject_IGDP
+        ticket_num: "13"
+
+      merge_request:
+        summary: Adding software version as hard requirement for staging
+        changes:
+          - "Added software version to staging model."
+          - "Added unit tests for valid software version, invalid software version, missing software version."
+        breaking_changes:
+          - summary: "Dropping all records which are missing software version."
+            affected_downstream: 
+              - *Stakeholder_Service
+              - *Stakeholder_Analytics
+            suggested_remedy: |
+              Handle deletions manualy, using the software version column in the exposures to identify source records
+              which will be dropped, and drop them in the target environment after our change is deployed.
