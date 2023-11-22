@@ -36,26 +36,28 @@ The root of your project is expected to have a `.metadock` folder, which can be 
 In the example above, we can imagine the content of our template, `gitlab_mr_template.md`, to look something like this:
 
 ```md
-{# target_formats: [ md, html ] #}
 {%- set jira_project_name = jira.get('project_name') -%}
 {%- set jira_project_id = jira.get('project_id') -%}
 {%- set jira_ticket_num = jira.get('ticket_num') -%}
-{%- set jira_ticket_id = jira_project_name ~ "-" ~ jira-ticket_num -%}
+{%- set jira_ticket_id = jira_project_name ~ "-" ~ jira_ticket_num -%}
 {%- set mr_summary = merge_request.get('summary') -%}
 # [{{ jira_ticket_id }}] {{ mr_summary }}
 
 Welcome to my MR. Some of the changes are listed below:
+
 {% for change in merge_request.get('changes', []) -%}
-- {{ change }}{{ "\n" if not loop.last else "" }}
+{{ loop.index }}. {{ change }}{{ "\n" if not loop.last else "" }}
 {%- endfor %}
 
 {% if merge_request.get('breaking_changes') -%}
 In addition to the changes above, there are also a few breaking changes introduced in this MR:
+
 {% for breaking_change in merge_request.get('breaking_changes') -%}
 - {{ breaking_change.get('summary') }}
-  - **Affected downstream consumers**: {{ breaking_change.get('affected_downstream', ['None']) | join(", ") }}.
-  - **Suggested remedy**: {{ breaking_change.get('suggested_remedy', 'None') }}{{ "\n" if not loop.last else "" }}
-{%- endfor }
+   - **Affected downstream stakeholders**: {{ breaking_change.get('affected_downstream', [{'id': 'None'}]) | map(attribute='id') | join(", ") }}.
+   - **Suggested remedy**: {{ breaking_change.get('suggested_remedy', 'None') }}{{ "\n" if not loop.last else "" }}
+{%- endfor -%}
+{%- endif %}
 
 For more information, please check out the Jira ticket associated with this MR, {{ jira_ticket_id }}.
 ```
@@ -65,15 +67,58 @@ meet the same format and style requirements. An example *content schematic* whic
 be in `gitlab_mr__feature1.yml`:
 
 ```yml
+# JiraProject:
+#   project_name: str
+#   project_id: str
+
+.JiraProject_IGDP: &JiraProject_IGDP
+  project_name: IGDP
+  project_id: "12001"
+
+# Stakeholder.Contact
+#   name: str
+#   email: str
+# 
+# Stakeholder:
+#   id: str
+#   contacts: 
+#     - Stakeholder.Contact
+#     - ...
+#   business_interest: str
+
+
+.Stakeholder_Service: &Stakeholder_Service 
+  id: Service
+  contacts:
+    - name: John Smith
+      email: john.smith@company.com
+    - name: Megan Richards
+      email: megan.richards@company.com
+  business_interest: Service operations reporting depends on exposure tables
+
+.Stakeholder_Analytics: &Stakeholder_Analytics
+  id: Analytics
+  contacts:
+    - name: Justin Edwards
+      email: justin.edwards@company.com
+    - name: Evan Hill
+      email: evan.hill@company.com
+    - name: Erika Ortega
+      email: erika.ortega@company.com
+
+
 content_schematics:
+
   - name: gitlab_mr__feature1
     template: gitlab_mr_template.md
-    target_formats: [ md+html ]
+    target_formats: [ md+html, md ]
+
     context:
+
       jira:
-        project_name: IGDP
-        project_id: "12001"
+        <<: *JiraProject_IGDP
         ticket_num: "13"
+
       merge_request:
         summary: Adding software version as hard requirement for staging
         changes:
@@ -82,8 +127,8 @@ content_schematics:
         breaking_changes:
           - summary: "Dropping all records which are missing software version."
             affected_downstream: 
-              - Service (service.person@company.com)
-              - Analytics (analytics.person@company.com)
+              - *Stakeholder_Service
+              - *Stakeholder_Analytics
             suggested_remedy: |
               Handle deletions manualy, using the software version column in the exposures to identify source records
               which will be dropped, and drop them in the target environment after our change is deployed.
@@ -92,35 +137,44 @@ content_schematics:
 Which will get compiled to look something like this, in a markdown file called 
 `generated_documents/gitlab_mr__feature1.md`:
 
-
 > # [IGDP-13] Adding software version as hard requirement for staging
 > 
 > Welcome to my MR. Some of the changes are listed below:
-> - Added software version to staging model.
-> - Added unit tests for valid software version, invalid software version, missing software version.
+> 
+> 1. Added software version to staging model.
+> 2. Added unit tests for valid software version, invalid software version, missing software version.
 > 
 > In addition to the changes above, there are also a few breaking changes introduced in this MR:
+> 
 > - Dropping all records which are missing software version.
->   - **Affected downstream consumers**: Service (service.person@company.com), Analytics (analytics.person@company.com).
->   - **Suggested remedy**: Handle deletions manualy, using the software version column in the exposures to identify
->     source recordswhich will be dropped, and drop them in the target environment after our change is deployed.
+>    - **Affected downstream stakeholders**: Service, Analytics.
+>    - **Suggested remedy**: Handle deletions manualy, using the software version column in the exposures to identify source records
+> which will be dropped, and drop them in the target environment after our change is deployed.
 > 
 > For more information, please check out the Jira ticket associated with this MR, IGDP-13.
 
-Because the `target_formats` we chose included `md+html`, we also get an HTML rendering of the document for free, 
+Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for free, 
 located at `generated_documents/gitlab_mr__feature_1.html`:
 
 ```html
 <h1>[IGDP-13] Adding software version as hard requirement for staging</h1>
-<p>Welcome to my MR. Some of the changes are listed below:
-- Added software version to staging model.
-- Added unit tests for valid software version, invalid software version, missing software version.</p>
-<p>In addition to the changes above, there are also a few breaking changes introduced in this MR:
-- Dropping all records which are missing software version.
-  - <strong>Affected downstream consumers</strong>: Service (service.person@company.com), Analytics (analytics.person@company.com).
-  - <strong>Suggested remedy</strong>: Handle deletions manualy, using the software version column in the exposures to identify source records
-which will be dropped, and drop them in the target environment after our change is deployed.</p>
+<p>Welcome to my MR. Some of the changes are listed below:</p>
+<ol>
+<li>Added software version to staging model.</li>
+<li>Added unit tests for valid software version, invalid software version, missing software version.</li>
+</ol>
+<p>In addition to the changes above, there are also a few breaking changes introduced in this MR:</p>
+<ul>
+<li>
+Dropping all records which are missing software version.<ul>
+<li><strong>Affected downstream stakeholders</strong>: Service, Analytics.</li>
+<li><strong>Suggested remedy</strong>: Handle deletions manualy, using the software version column in the exposures to identify source records
+which will be dropped, and drop them in the target environment after our change is deployed.</li>
+</ul>
+</li>
+</ul>
 <p>For more information, please check out the Jira ticket associated with this MR, IGDP-13.</p>
+
 ```
 
 In a single *content schematics* yaml file, you can define any number of documents which should be generated (and to 
