@@ -12,7 +12,9 @@ def parse_arguments():
         argparse.Namespace: Parsed command line arguments.
     """
 
-    def _add_selector_argument_group(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    def _add_selector_argument_group(
+        parser: argparse.ArgumentParser,
+    ) -> argparse.ArgumentParser:
         selector_group = parser.add_argument_group("selection criteria")
         selector_group.add_argument(
             "-s",
@@ -35,7 +37,8 @@ def parse_arguments():
         return parser
 
     arg_parser = argparse.ArgumentParser(
-        prog="metadock", description="Generates and formats Jinja documentation templates from yaml sources."
+        prog="metadock",
+        description="Generates and formats Jinja documentation templates from yaml sources.",
     )
     arg_parser.add_argument(
         "-p",
@@ -49,7 +52,8 @@ def parse_arguments():
     cmd_sub_parsers = arg_parser.add_subparsers(help="Metadock command", dest="command")
 
     init_parser = cmd_sub_parsers.add_parser(
-        "init", help="Initialize a new Metadock project in a folder which does not currently have one."
+        "init",
+        help="Initialize a new Metadock project in a folder which does not currently have one.",
     )
     validate_parser = cmd_sub_parsers.add_parser(
         "validate", help="Validate the structure of an existing Metadock project."
@@ -59,11 +63,13 @@ def parse_arguments():
     )
     build_parser = _add_selector_argument_group(build_parser)
     list_parser = cmd_sub_parsers.add_parser(
-        "list", help="List all recognized documents which can be generated from a given selection."
+        "list",
+        help="List all recognized documents which can be generated from a given selection.",
     )
     list_parser = _add_selector_argument_group(list_parser)
     clean_parser = cmd_sub_parsers.add_parser(
-        "clean", help="Cleans the generated_documents directory for the Metadock project."
+        "clean",
+        help="Cleans the generated_documents directory for the Metadock project.",
     )
 
     return arg_parser.parse_args()
@@ -105,7 +111,8 @@ def main():
 
     if arguments.command == "build":
         build_result = metadock.build(
-            schematic_globs=arguments.schematic_globs, template_globs=arguments.template_globs
+            schematic_globs=arguments.schematic_globs,
+            template_globs=arguments.template_globs,
         )
         for generated_document in build_result.generated_documents:
             print("Generated document (%s): \t%s" % (generated_document.status.value, generated_document.path))
@@ -113,7 +120,10 @@ def main():
         exit(0)
 
     if arguments.command == "list":
-        list_results = metadock.list(schematic_globs=arguments.schematic_globs, template_globs=arguments.template_globs)
+        list_results = metadock.list(
+            schematic_globs=arguments.schematic_globs,
+            template_globs=arguments.template_globs,
+        )
         print("List picked up the following content schematics:")
         print(*("- %s" % result for result in list_results), sep="\n")
         exit(0)
