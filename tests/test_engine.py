@@ -77,14 +77,33 @@ def test_metadock_project_generated_documents_directory(metadock_project):
 
 def test_metadock_project_build(metadock_project):
     # Test building all schematics
-    metadock_project.build()
+
+    build_result = metadock_project.build()
     assert len(list(metadock_project.generated_documents_directory.glob("*"))) == 4
+    assert len(build_result.generated_documents) == 4
+    assert all(gd.status == "new" for gd in build_result.generated_documents)
+
     metadock_project.clean()
     assert len(list(metadock_project.generated_documents_directory.glob("*"))) == 0
 
     # Test building specific schematics
-    metadock_project.build(["schematic1a"])
+    build_result = metadock_project.build(["schematic1a"])
     assert len(list(metadock_project.generated_documents_directory.glob("*"))) == 1
+    assert len(build_result.generated_documents) == 1
+    assert all(gd.status == "new" for gd in build_result.generated_documents)
+
+    # Test re-build has "nochange" status
+    build_result = metadock_project.build(["schematic1a"])
+    assert len(list(metadock_project.generated_documents_directory.glob("*"))) == 1
+    assert len(build_result.generated_documents) == 1
+    assert all(gd.status == "nochange" for gd in build_result.generated_documents)
+
+    # Test re-build has "update" status
+    (metadock_project.generated_documents_directory / "schematic1a.md").write_text("Different content.")
+    build_result = metadock_project.build(["schematic1a"])
+    assert len(list(metadock_project.generated_documents_directory.glob("*"))) == 1
+    assert len(build_result.generated_documents) == 1
+    assert all(gd.status == "update" for gd in build_result.generated_documents)
 
 
 def test_metadock_project_clean(metadock_project):
