@@ -71,6 +71,55 @@ class MetadockProjectValidationResult(pydantic.BaseModel):
         return self.status.value in (ValidationStatus.SUCCESS, ValidationStatus.WARNING)
 
 
+class GeneratedDocumentChangeStatus(StrEnum):
+    """Enumerated type for different change statuses of built documents."""
+
+    NEW = auto()
+    UPDATE = auto()
+    NOCHANGE = auto()
+
+
+class MetadockGeneratedDocument(pydantic.BaseModel):
+    """Generated document pydantic Model.
+
+    Attributes:
+        status (GeneratedDocumentChangeStatus): Enumerated value for change status of the built document
+        path (Path): Path to the built document
+    """
+
+    status: GeneratedDocumentChangeStatus
+    path: Path
+
+    def __init__(self, path: Path, content: str):
+        """Initialize a MetadockGeneratedDocument. Computes the change status of the built document based on the hash of the
+        file, if it exists, against the hash of the new document.
+
+        Args:
+            status (GeneratedDocumentChangeStatus): Enumerated value for change status of the built document
+            path (Path): Path to the built document
+            content (str): Content of the built document
+        """
+        status = GeneratedDocumentChangeStatus.NEW
+        if path.exists():
+            with path.open("r") as handle:
+                old_content = handle.read()
+            if hash(old_content) == hash(content):
+                status = GeneratedDocumentChangeStatus.NOCHANGE
+            else:
+                status = GeneratedDocumentChangeStatus.UPDATE
+        return super().__init__(status=status, path=path)
+
+
+class MetadockProjectBuildResult(pydantic.BaseModel):
+    """Project build result pydantic Model. Summarizes which documents are new, updated, or unchanged.
+
+    Attributes:
+        generated_documents (list[MetadockGeneratedDocument]): List of generated documents and their change statuses
+    """
+
+    generated_documents: list[MetadockGeneratedDocument]
+
+
 class MetadockProject:
     """Core abstraction for representing a Metadock project. Tracks and statefully manages the templated_documents,
     content_schematics, and generated_documents directories.
@@ -156,7 +205,7 @@ class MetadockProject:
         """Path to the generated_documents directory for the project"""
         return self.directory / "generated_documents"
 
-    def build(self, schematics: Optional[list[str]] = None):
+    def build(self, schematics: Optional[list[str]] = None) -> MetadockProjectBuildResult:
         """Build the compiled documents for the specified schematics.
 
         Args:
@@ -166,6 +215,8 @@ class MetadockProject:
         if schematics is None:
             schematics = list(self.content_schematics.keys())
 
+        generated_documents = []
+
         for schematic_name in schematics:
             content_schematic = self.content_schematics[schematic_name]
             compiled_targets = content_schematic.to_compiled_targets(self)
@@ -173,8 +224,15 @@ class MetadockProject:
             for target_format, compiled_document in compiled_targets.items():
                 file_extension = MetadockTargetFormatFactory.target_format(target_format).file_extension
                 generated_filepath = self.generated_documents_directory / (schematic_name + "." + file_extension)
-                with generated_filepath.open("w") as handle:
-                    handle.write(str(compiled_document))
+                generated_document = MetadockGeneratedDocument(generated_filepath, str(compiled_document))
+                generated_documents.append(generated_document)
+                print(generated_document.status.value, "\t", generated_document.path)
+
+                if not generated_document.status.value == "nochange":
+                    with generated_filepath.open("w") as handle:
+                        handle.write(str(compiled_document))
+
+        return MetadockProjectBuildResult(generated_documents=generated_documents)
 
     def clean(self):
         """Deletes all generated documents in the `generated_documents` project directory.
