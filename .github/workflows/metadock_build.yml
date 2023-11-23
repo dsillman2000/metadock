@@ -1,0 +1,28 @@
+name: metadock build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+    - name: Install package
+      run: |
+        poetry install
+    - name: Run `metadock build` and move docs
+      run: |
+        poetry run metadock build
+        cp .metadock/generated_documents/README.md README.md

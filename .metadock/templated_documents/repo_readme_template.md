@@ -44,8 +44,8 @@ be in `gitlab_mr__feature1.yml`:
     )
 }}
 
-Which will get compiled to look something like this, in a markdown file called 
-`generated_documents/gitlab_mr__feature1.md`:
+By invoking the CLI with `metadock build`, our template is compiled to look something like this, in a markdown file 
+called `generated_documents/gitlab_mr__feature1.md`:
 
 {{ blockquote(example_project.get("generated_documents").get("gitlab_mr__feature1.md")) }}
 
