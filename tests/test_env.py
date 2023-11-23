@@ -150,7 +150,7 @@ def test_env__codeblock(empty_metadock_project_dir):
     (project_dir / "templated_documents" / "template1.md").write_text(
         """The source code for this project:
 
-{{ codeblock(code, language=language) }}"""
+{{ codeblock(code_text, language=language) }}"""
     )
     (project_dir / "content_schematics" / "schematic1.yml").write_text(
         """
@@ -159,13 +159,13 @@ def test_env__codeblock(empty_metadock_project_dir):
             template: template1.md
             target_formats: [ md ]
             context:
-              code: "lambda u: u.upper()"
+              code_text: "lambda u: u.upper()"
 
           - name: example2
             template: template1.md
             target_formats: [ md ]
             context:
-              code: |
+              code_text: |
                 def hello_world():
                     print("Hello, world!")
               language: py
@@ -190,3 +190,22 @@ def hello_world():
     print("Hello, world!")
 ```"""
     )
+
+
+def test_env__code(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "template1.md").write_text("""The password is {{ code("secret123") }}""")
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: example1
+            template: template1.md
+            target_formats: [ md ]
+
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == ("""The password is `secret123`""")

@@ -68,7 +68,7 @@ generated file.
 
 The natively supported values for `target_formats` are:
 {% for target_format, data in target_formats.items() %}
-{{ list("`" ~ target_format ~ "`:", list(data.get("description"))) }}
+{{ list(code(target_format) ~ ":", list(data.get("description"))) }}
 {% endfor -%}
 - Anything else, e.g. `txt`, `sql` or `py`
   - Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or 

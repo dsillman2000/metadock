@@ -12,24 +12,27 @@ class MetadockTableNamespace:
 
 class MetadockEnv:
     table = MetadockTableNamespace()
-    exports = ["blockquote", "codeblock", "debug", "list", "table"]
+    exports = ["blockquote", "code", "codeblock", "debug", "list", "table"]
 
     def debug(self, message: str):
         print(message)
         return ""
 
     def blockquote(self, content: str):
-        _blockquoted = content.rstrip().replace("\n", "\n> ")
+        _blockquoted = content.strip().replace("\n", "\n> ")
         return f"> {_blockquoted}"
 
     def codeblock(self, content: str, language: str = ""):
-        return f"```{language}\n{content.rstrip()}\n```"
+        return f"```{language}\n{content.strip()}\n```"
+
+    def code(self, content: str):
+        return f"`{content.strip()}`"
 
     def list(self, *items: str):
         _list_prefixes = ("-", "*", "+")
 
         def _is_list(item: str):
-            return item.startswith(_list_prefixes)
+            return item.lstrip().startswith(_list_prefixes)
 
         indented_items = [item.replace("\n", "\n  ") for item in items]
         return "\n".join(

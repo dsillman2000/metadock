@@ -1,6 +1,6 @@
 # metadock
 
-Templated documentation engine, powered by [Jinja2](https://github.com/pallets/jinja) + [marko](https://github.com/frostming/marko)
+Templated documentation engine, powered by [Jinja2](https://github.com/pallets/jinja) + [marko](https://github.com/frostming/marko).
 
 ## Quick Intro
 
