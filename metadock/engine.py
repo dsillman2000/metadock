@@ -266,11 +266,31 @@ class MetadockProject:
 
 
 class MetadockTemplatedDocument(pydantic.BaseModel):
+    """Core abstraction which represents a templated document in a Metadock project.
+
+    Attributes:
+        absolute_path (Path): The absolute path to the templated document.
+        project_relative_path (Path): The path to the templated document relative to the .metadock/templated_documents
+            project subdirectory.
+    """
+
     absolute_path: Path
     project_relative_path: Path
 
     @classmethod
     def from_absolute_path(cls, absolute_path: Path | str):
+        """Creates a `MetadockTemplatedDocument` instance from an absolute path to an existing template in the
+        .metadock/templated_documents project subdirectory.
+
+        Args:
+            absolute_path (Path | str): The absolute path to the templated document.
+
+        Raises:
+            exceptions.MetadockProjectException: If the templated document is not in the Metadock project directory.
+
+        Returns:
+            MetadockTemplatedDocument: The created `MetadockTemplatedDocument` instance.
+        """
         absolute_path = Path(absolute_path)
 
         if "/.metadock/templated_documents/" not in str(absolute_path):
@@ -283,15 +303,39 @@ class MetadockTemplatedDocument(pydantic.BaseModel):
     def from_project_relative_path(
         cls, project_dir: Path | str, project_relative_path: Path | str
     ) -> "MetadockTemplatedDocument":
+        """Creates a `MetadockTemplatedDocument` instance from a path relative to the .metadock/templated_documents
+        directory for this project
+
+        Args:
+            project_dir (Path | str): The path to the Metadock project directory.
+            project_relative_path (Path | str): The path to the templated document relative to the
+                .metadock/templated_documents project subdirectory.
+
+        Returns:
+            MetadockTemplatedDocument: The created `MetadockTemplatedDocument` instance.
+        """
         project_relative_path = Path(project_relative_path)
         absolute_path = Path(project_dir) / "templated_documents" / Path(project_relative_path)
         return cls(absolute_path=absolute_path, project_relative_path=project_relative_path)
 
     def content(self) -> str:
+        """Returns the raw content of the document template.
+
+        Returns:
+            str: The content of the templated document.
+        """
         with self.absolute_path.open("r") as handle:
             return handle.read()
 
     def jinja_template(self) -> jinja2.Template:
+        """Parses the content of the templated document as a Jinja2 template.
+
+        Raises:
+            exceptions.MetadockTemplateParsingException: If parsing the Jinja2 template fails.
+
+        Returns:
+            jinja2.Template: The parsed Jinja2 template.
+        """
         try:
             return jinja2.Template(self.content())
         except Exception as e:
@@ -302,12 +346,31 @@ class MetadockTemplatedDocument(pydantic.BaseModel):
 
 
 class MetadockContentSchematic(pydantic.BaseModel):
+    """Represents a content schematic in Metadock.
+
+    Attributes:
+        name (str): The unique name for the content schematic.
+        template (str): The template to be used for rendering the content.
+        target_formats (list[str]): The list of target formats for the compiled content.
+        context (Any, optional): The context data to be used during rendering. Defaults to an empty dictionary.
+    """
+
     name: str
     template: str
     target_formats: list[str]
     context: Any = {}
 
     def to_compiled_targets(self, project: MetadockProject) -> dict[str, str | bytes]:
+        """
+        Converts the content schematic to compiled targets based in the provided project.
+
+        Args:
+            project (MetadockProject): The Metadock project containing the templated documents.
+
+        Returns:
+            dict[str, str | bytes]: A dictionary mapping target format identifiers to the compiled content.
+        """
+
         compiled_targets: dict[str, str | bytes] = {}
 
         for target_format in self.target_formats:
@@ -322,12 +385,25 @@ class MetadockContentSchematic(pydantic.BaseModel):
 
     @classmethod
     def collect_from_file(cls, yaml_path: Path | str) -> "list[MetadockContentSchematic]":
+        """
+        Collects content schematics from a YAML file. Flattens any merge keys in the YAML specification.
+
+        Args:
+            yaml_path (Path | str): The path to the YAML file.
+
+        Returns:
+            list[MetadockContentSchematic]: A list of content schematics parsed from the YAML file.
+
+        Raises:
+            MetadockContentSchematicParsingException: If the YAML file is not found or if a required key is missing.
+        """
+
         yaml_path = Path(yaml_path)
         content_schematics: list[MetadockContentSchematic] = []
 
         if not yaml_path.exists():
             raise exceptions.MetadockContentSchematicParsingException(
-                "Coud not find content schematic file %s" % yaml_path
+                "Could not find content schematic file %s" % yaml_path
             )
 
         with yaml_path.open("r") as handle:

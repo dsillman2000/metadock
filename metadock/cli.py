@@ -1,9 +1,17 @@
 import argparse
 from pathlib import Path
+
 from metadock import Metadock, exceptions
 
 
 def parse_arguments():
+    """
+    Parse command line arguments for the Metadock CLI.
+
+    Returns:
+        argparse.Namespace: Parsed command line arguments.
+    """
+
     def _add_selector_argument_group(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         selector_group = parser.add_argument_group("selection criteria")
         selector_group.add_argument(
@@ -62,6 +70,10 @@ def parse_arguments():
 
 
 def main():
+    """Entry point of the Metadock command-line interface.
+    Parses command-line arguments and executes the corresponding commands.
+    """
+
     arguments: argparse.Namespace = parse_arguments()
 
     if arguments.command == "init":
