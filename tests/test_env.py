@@ -139,8 +139,8 @@ def test_env__blockquote(empty_metadock_project_dir):
     assert (project_dir / "generated_documents" / "example2.md").read_text() == (
         """As Captain Kirk once said,
 
-> This reminds me of something Spock said once:
->
+> This reminds me of something Spock said once: 
+> 
 > > Fascinating."""
     )
 
