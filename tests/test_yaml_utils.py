@@ -36,6 +36,16 @@ from metadock import yaml_utils
             {"key": "value", "inner": "item", "first": "level"},
             id="simple 2 level to flatten with adjacent key",
         ),
+        pytest.param(
+            {"<<": [{"key_a": "value"}, {"key_b": "value again"}], "first": "level"},
+            {"key_a": "value", "key_b": "value again", "first": "level"},
+            id="simple merge list",
+        ),
+        pytest.param(
+            {"<<": [{"k": "value"}, {"k": "value again"}], "first": "level"},
+            {"k": "value again", "first": "level"},
+            id="simple merge list with collision",
+        ),
     ],
 )
 def test_yaml_utils__flatten_merge_keys(yml_dict, flat_dict):
