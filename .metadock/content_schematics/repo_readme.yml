@@ -1,0 +1,207 @@
+.example_project_structure: &example_project_structure |
+  MyProject/
+    - ...
+    - <my project content>
+    - ...
+    - .metadock/
+        - templated_documents/
+            - gitlab_mr_template.md
+        - content_schematics/
+            - gitlab_mr__feature1.yml
+            - gitlab_mr__otherfeature.yml
+        - generated_documents/
+            - gitlab_mr__feature1.md
+            - gitlab_mr__feature1.html
+            - gitlab_mr__otherfeature.md
+            - gitlab_mr__otherfeature.html
+
+.example_project_templated_documents_gitlab_mr_template_md: &example_project_templated_documents_gitlab_mr_template_md |
+  {%- set jira_project_name = jira.get('project_name') -%}
+  {%- set jira_project_id = jira.get('project_id') -%}
+  {%- set jira_ticket_num = jira.get('ticket_num') -%}
+  {%- set jira_ticket_id = jira_project_name ~ "-" ~ jira_ticket_num -%}
+  {%- set mr_summary = merge_request.get('summary') -%}
+  # [{{ jira_ticket_id }}] {{ mr_summary }}
+
+  Welcome to my MR. Some of the changes are listed below:
+
+  {% for change in merge_request.get('changes', []) -%}
+  {{ loop.index }}. {{ change }}{{ "\n" if not loop.last else "" }}
+  {%- endfor %}
+
+  {% if merge_request.get('breaking_changes') -%}
+  In addition to the changes above, there are also a few breaking changes introduced in this MR:
+
+  {% for breaking_change in merge_request.get('breaking_changes') -%}
+  - {{ breaking_change.get('summary') }}
+    - **Affected downstream stakeholders**: {{ breaking_change.get('affected_downstream', [{'id': 'None'}]) | map(attribute='id') | join(", ") }}.
+    - **Suggested remedy**: {{ breaking_change.get('suggested_remedy', 'None') }}{{ "\n" if not loop.last else "" }}
+  {%- endfor -%}
+  {%- endif %}
+
+  For more information, please check out the Jira ticket associated with this MR, {{ jira_ticket_id }}.
+
+.example_project_content_schematics_gitlab_mr__feature1_yml: &example_project_content_schematics_gitlab_mr__feature1_yml |
+  #... 
+  # yaml anchor definitions 
+  #...
+
+  content_schematics:
+
+  - name: gitlab_mr__feature1
+    template: gitlab_mr_template.md
+    target_formats: [ md+html, md ]
+
+    context:
+
+      jira:
+        <<: *JiraProject-IGDP
+        ticket_num: "13"
+
+      merge_request:
+        summary: Adding software version as hard requirement for staging
+        changes:
+          - "Added software version to staging model."
+          - "Added unit tests for valid software version, invalid software version, missing software version."
+        breaking_changes:
+          - summary: "Dropping all records which are missing software version."
+            affected_downstream: 
+              - *Stakeholder-Service
+              - *Stakeholder-Analytics
+            suggested_remedy: |
+              - Drop all records which are missing software version.
+              - Add software version as a hard requirement for staging.
+
+.example_project_generated_documents_gitlab_mr__feature1_md: &example_project_generated_documents_gitlab_mr__feature1_md |
+  # [IGDP-13] Adding software version as hard requirement for staging
+
+  Welcome to my MR. Some of the changes are listed below:
+
+  1. Added software version to staging model.
+  2. Added unit tests for valid software version, invalid software version, missing software version.
+
+  In addition to the changes above, there are also a few breaking changes introduced in this MR:
+
+  - Dropping all records which are missing software version.
+    - **Affected downstream stakeholders**: Service, Analytics.
+    - **Suggested remedy**: 
+      - Drop all records which are missing software version.
+      - Add software version as a hard requirement for staging.
+
+  For more information, please check out the Jira ticket associated with this MR, IGDP-13.
+
+.example_project_generated_documents_gitlab_mr__feature1_html: &example_project_generated_documents_gitlab_mr__feature1_html |
+  <h1>[IGDP-13] Adding software version as hard requirement for staging</h1>
+  <p>Welcome to my MR. Some of the changes are listed below:</p>
+  <ol>
+  <li>Added software version to staging model.</li>
+  <li>Added unit tests for valid software version, invalid software version, missing software version.</li>
+  </ol>
+  <p>In addition to the changes above, there are also a few breaking changes introduced in this MR:</p>
+  <ul>
+  <li>
+  Dropping all records which are missing software version.<ul>
+  <li><strong>Affected downstream stakeholders</strong>: Service, Analytics.</li>
+  <li><strong>Suggested remedy</strong>: Handle deletions manualy, using the software version column in the exposures to identify source records
+  which will be dropped, and drop them in the target environment after our change is deployed.</li>
+  </ul>
+  </li>
+  </ul>
+  <p>For more information, please check out the Jira ticket associated with this MR, IGDP-13.</p>
+
+.cli_usage_string: &cli_usage_string |
+  usage: metadock [-h] [-p PROJECT_DIR] {init,validate,build,list,clean} ...
+
+  Generates and formats Jinja documentation templates from yaml sources.
+
+  positional arguments:
+    {init,validate,build,list,clean}
+                          Metadock command
+      init                Initialize a new Metadock project in a folder which does not currently have one.
+      validate            Validate the structure of an existing Metadock project.
+      build               Build a Metadock project, rendering some or all documents.
+      list                List all recognized documents which can be generated from a given selection.
+      clean               Cleans the generated_documents directory for the Metadock project.
+
+  options:
+    -h, --help            show this help message and exit
+    -p PROJECT_DIR, --project-dir PROJECT_DIR
+                          Project directory containing a .metadock directory.
+
+.python_interface_init: &python_interface_init
+  source_file: metadock/__init__.py
+  method_name: metadock.Metadock.init
+  signature: (Path | str) -> metadock.Metadock
+
+.python_interface_validate: &python_interface_validate
+  source_file: metadock/__init__.py
+  method_name: metadock.Metadock.validate
+  signature: () -> metadock.engine.MetadockProjectValidationResult
+
+.python_interface_build: &python_interface_build
+  source_file: metadock/__init__.py
+  method_name: metadock.Metadock.build
+  signature: (list[str], list[str]) ->  metadock.engine.MetadockProjectBuildResult
+
+.python_interface_list: &python_interface_list
+  source_file: metadock/__init__.py
+  method_name: metadock.Metadock.list
+  signature: (list[str], list[str]) ->  metadock.engine.MetadockProjectListResult
+
+.python_interface_clean: &python_interface_clean
+  source_file: metadock/__init__.py
+  method_name: metadock.Metadock.clean
+  signature: () -> None
+
+content_schematics:
+
+  - name: README
+    template: repo_readme_template.md
+    target_formats: [ md+html, md ]
+    context:
+
+      # Hyperlinks in readme
+      links:
+        Jinja2: "[Jinja2](https://github.com/pallets/jinja)"
+        marko: "[marko](https://github.com/frostming/marko)"
+
+      # Example project metadata
+      example_project:
+        structure: *example_project_structure
+        templated_documents:
+          gitlab_mr_template.md: *example_project_templated_documents_gitlab_mr_template_md
+        content_schematics:
+          gitlab_mr__feature1.yml: *example_project_content_schematics_gitlab_mr__feature1_yml
+        generated_documents:
+          gitlab_mr__feature1.md: *example_project_generated_documents_gitlab_mr__feature1_md
+          gitlab_mr__feature1.html: *example_project_generated_documents_gitlab_mr__feature1_html
+      
+      # CLI information
+      cli:
+        usage_string: *cli_usage_string
+        commands:
+
+          init:
+            description: Used to initialize a fresh Metadock project in a folder which does not currently have one.
+            usage: metadock [-p PROJECT_DIR] init
+            python_interface: 
+              method_name: metadock.Metadock.init
+              signature: (Path | str) -> metadock.Metadock
+
+          validate:
+            description: Used to validate the structure of an existing Metadock project.
+            usage: metadock [-p PROJECT_DIR] validate
+            python_interface:
+              method_name: metadock.Metadock.validate
+              signature: () -> metadock.engine.MetadockProjectValidationResult
+          
+
+        
+      # Target formats
+      target_formats:
+        md+html:
+          description: Generates the given template, parses it into a markdown document, and then generates HTML from it.
+
+      # Project author(s)
+      authors:
+        - David Sillman <dsillman2000@gmail.com>

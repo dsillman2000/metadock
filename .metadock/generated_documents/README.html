@@ -1,0 +1,175 @@
+<h1>metadock</h1>
+<p>Templated documentation engine, powered by <a href="https://github.com/pallets/jinja">Jinja2</a> + <a href="https://github.com/frostming/marko">marko</a></p>
+<h2>Quick Intro</h2>
+<p>Using markdown (.md) as a common source format for rich text content, <code>metadock</code> allows you to define Jinja <em>templated
+documents</em>  for various markdown docs that you'd like to format into a rich text document, e.g. Jira, Confluence, Agile,
+Gitlab, or a static website. You can then compile your markdown documents using context variables supplied via yaml
+<em>content schematics</em>.</p>
+<p>A simple Metadock-enabled project might look something like this:</p>
+<pre><code>MyProject/
+  - ...
+  - &lt;my project content&gt;
+  - ...
+  - .metadock/
+      - templated_documents/
+          - gitlab_mr_template.md
+      - content_schematics/
+          - gitlab_mr__feature1.yml
+          - gitlab_mr__otherfeature.yml
+      - generated_documents/
+          - gitlab_mr__feature1.md
+          - gitlab_mr__feature1.html
+          - gitlab_mr__otherfeature.md
+          - gitlab_mr__otherfeature.html
+</code></pre>
+<p>The root of your project is expected to have a <code>.metadock</code> folder, which can be generated from the CLI using
+<code>metadock init</code>. </p>
+<h2>Basic CLI Usage</h2>
+<p>The <code>metadock</code> CLI, installed using <code>pip install metadock</code>, has five basic commands, spelled out in the help message:</p>
+<pre><code class="language-sh">usage: metadock [-h] [-p PROJECT_DIR] {init,validate,build,list,clean} ...
+
+Generates and formats Jinja documentation templates from yaml sources.
+
+positional arguments:
+  {init,validate,build,list,clean}
+                        Metadock command
+    init                Initialize a new Metadock project in a folder which does not currently have one.
+    validate            Validate the structure of an existing Metadock project.
+    build               Build a Metadock project, rendering some or all documents.
+    list                List all recognized documents which can be generated from a given selection.
+    clean               Cleans the generated_documents directory for the Metadock project.
+
+options:
+  -h, --help            show this help message and exit
+  -p PROJECT_DIR, --project-dir PROJECT_DIR
+                        Project directory containing a .metadock directory.
+</code></pre>
+<h2>Example Usage</h2>
+<p>In the example above, we can imagine the content of our template, <code>gitlab_mr_template.md</code>, to look something like this:</p>
+<pre><code class="language-md">{%- set jira_project_name = jira.get(&#x27;project_name&#x27;) -%}
+{%- set jira_project_id = jira.get(&#x27;project_id&#x27;) -%}
+{%- set jira_ticket_num = jira.get(&#x27;ticket_num&#x27;) -%}
+{%- set jira_ticket_id = jira_project_name ~ &quot;-&quot; ~ jira_ticket_num -%}
+{%- set mr_summary = merge_request.get(&#x27;summary&#x27;) -%}
+# [{{ jira_ticket_id }}] {{ mr_summary }}
+
+Welcome to my MR. Some of the changes are listed below:
+
+{% for change in merge_request.get(&#x27;changes&#x27;, []) -%}
+{{ loop.index }}. {{ change }}{{ &quot;\n&quot; if not loop.last else &quot;&quot; }}
+{%- endfor %}
+
+{% if merge_request.get(&#x27;breaking_changes&#x27;) -%}
+In addition to the changes above, there are also a few breaking changes introduced in this MR:
+
+{% for breaking_change in merge_request.get(&#x27;breaking_changes&#x27;) -%}
+- {{ breaking_change.get(&#x27;summary&#x27;) }}
+  - **Affected downstream stakeholders**: {{ breaking_change.get(&#x27;affected_downstream&#x27;, [{&#x27;id&#x27;: &#x27;None&#x27;}]) | map(attribute=&#x27;id&#x27;) | join(&quot;, &quot;) }}.
+  - **Suggested remedy**: {{ breaking_change.get(&#x27;suggested_remedy&#x27;, &#x27;None&#x27;) }}{{ &quot;\n&quot; if not loop.last else &quot;&quot; }}
+{%- endfor -%}
+{%- endif %}
+
+For more information, please check out the Jira ticket associated with this MR, {{ jira_ticket_id }}.
+</code></pre>
+<p>This is a very simple MR format which can easily be generalized to allow for quickly generating large sets of docs which
+meet the same format and style requirements. An example <em>content schematic</em> which could service this template could
+be in <code>gitlab_mr__feature1.yml</code>:</p>
+<pre><code class="language-yml">#... 
+# yaml anchor definitions 
+#...
+
+content_schematics:
+
+- name: gitlab_mr__feature1
+  template: gitlab_mr_template.md
+  target_formats: [ md+html, md ]
+
+  context:
+
+    jira:
+      &lt;&lt;: *JiraProject-IGDP
+      ticket_num: &quot;13&quot;
+
+    merge_request:
+      summary: Adding software version as hard requirement for staging
+      changes:
+        - &quot;Added software version to staging model.&quot;
+        - &quot;Added unit tests for valid software version, invalid software version, missing software version.&quot;
+      breaking_changes:
+        - summary: &quot;Dropping all records which are missing software version.&quot;
+          affected_downstream: 
+            - *Stakeholder-Service
+            - *Stakeholder-Analytics
+          suggested_remedy: |
+            - Drop all records which are missing software version.
+            - Add software version as a hard requirement for staging.
+</code></pre>
+<p>Which will get compiled to look something like this, in a markdown file called
+<code>generated_documents/gitlab_mr__feature1.md</code>:</p>
+<blockquote>
+<h1>[IGDP-13] Adding software version as hard requirement for staging</h1>
+<p>Welcome to my MR. Some of the changes are listed below:</p>
+<ol>
+<li>Added software version to staging model.</li>
+<li>Added unit tests for valid software version, invalid software version, missing software version.</li>
+</ol>
+<p>In addition to the changes above, there are also a few breaking changes introduced in this MR:</p>
+<ul>
+<li>
+Dropping all records which are missing software version.<ul>
+<li><strong>Affected downstream stakeholders</strong>: Service, Analytics.</li>
+<li>
+<strong>Suggested remedy</strong>: <ul>
+<li>Drop all records which are missing software version.</li>
+<li>Add software version as a hard requirement for staging.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>For more information, please check out the Jira ticket associated with this MR, IGDP-13.</p>
+</blockquote>
+<p>Because the <code>target_formats</code> we chose included <code>md+html</code> <em>and</em> <code>md</code>, we also get an HTML rendering of the document for free,
+located at <code>generated_documents/gitlab_mr__feature_1.html</code>:</p>
+<pre><code class="language-html">&lt;h1&gt;[IGDP-13] Adding software version as hard requirement for staging&lt;/h1&gt;
+&lt;p&gt;Welcome to my MR. Some of the changes are listed below:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Added software version to staging model.&lt;/li&gt;
+&lt;li&gt;Added unit tests for valid software version, invalid software version, missing software version.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;In addition to the changes above, there are also a few breaking changes introduced in this MR:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+Dropping all records which are missing software version.&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Affected downstream stakeholders&lt;/strong&gt;: Service, Analytics.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Suggested remedy&lt;/strong&gt;: Handle deletions manualy, using the software version column in the exposures to identify source records
+which will be dropped, and drop them in the target environment after our change is deployed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For more information, please check out the Jira ticket associated with this MR, IGDP-13.&lt;/p&gt;
+</code></pre>
+<p>In a single <em>content schematics</em> yaml file, you can define any number of documents which should be generated (and to
+what formats) using a given <code>template</code> and <code>context</code> (context variables loaded into the Jinja parser).</p>
+<p>The <code>template</code> key should be a relative path to a Jinja template file from the <code>./metadock/templated_documents</code>
+directory. The <code>name</code> key should be a unique identifier for the generated document, and will compose the basename of the
+generated file. </p>
+<p>The natively supported values for <code>target_formats</code> are:</p>
+<ul>
+<li>
+<code>md+html</code>:<ul>
+<li>Generates the given template, parses it into a markdown document, and then generates HTML from it.</li>
+</ul>
+</li>
+<li>
+Anything else, e.g. <code>txt</code>, <code>sql</code> or <code>py</code><ul>
+<li>Generates the given template as plaintext, and adds the given string as a file extension, e.g. <code>.txt</code>, <code>.sql</code> or
+<code>.py</code>.</li>
+</ul>
+</li>
+</ul>
+<h2>Acknowledgements</h2>
+<p>Author:</p>
+<ul>
+<li>David Sillman <a href="mailto:dsillman2000@gmail.com">dsillman2000@gmail.com</a></li>
+</ul>
