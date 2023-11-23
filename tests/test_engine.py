@@ -4,15 +4,9 @@ from metadock import MetadockProject
 
 
 @pytest.fixture
-def metadock_project(tmp_path):
+def metadock_project(empty_metadock_project_dir):
     # Create a temporary directory for the Metadock project
-    project_dir = tmp_path / ".metadock"
-    project_dir.mkdir()
-
-    # Create the necessary directories within the project
-    (project_dir / "templated_documents").mkdir()
-    (project_dir / "content_schematics").mkdir()
-    (project_dir / "generated_documents").mkdir()
+    project_dir = empty_metadock_project_dir
 
     # Create some dummy files within the directories
     (project_dir / "templated_documents" / "template1.md").write_text("Simple plaintext document.")

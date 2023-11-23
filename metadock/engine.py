@@ -226,7 +226,6 @@ class MetadockProject:
                 generated_filepath = self.generated_documents_directory / (schematic_name + "." + file_extension)
                 generated_document = MetadockGeneratedDocument(generated_filepath, str(compiled_document))
                 generated_documents.append(generated_document)
-                print(generated_document.status.value, "\t", generated_document.path)
 
                 if not generated_document.status.value == "nochange":
                     with generated_filepath.open("w") as handle:

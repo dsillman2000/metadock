@@ -1,8 +1,13 @@
 import os
 from pathlib import Path
 from typing import Optional, Self
+
 from metadock import exceptions
-from metadock.engine import MetadockProject, MetadockProjectValidationResult, MetadockContentSchematic
+from metadock.engine import (
+    MetadockProject,
+    MetadockProjectBuildResult,
+    MetadockProjectValidationResult,
+)
 
 
 class Metadock:
@@ -52,8 +57,8 @@ class Metadock:
     def clean(self):
         return self.project.clean()
 
-    def build(self, schematic_globs: list[str] = [], template_globs: list[str] = []):
-        self.project.build(self.list(schematic_globs, template_globs))
+    def build(self, schematic_globs: list[str] = [], template_globs: list[str] = []) -> MetadockProjectBuildResult:
+        return self.project.build(self.list(schematic_globs, template_globs))
 
     def list(self, schematic_globs: list[str] = [], template_globs: list[str] = []) -> list[str]:
         if schematic_globs or template_globs:

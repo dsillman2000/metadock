@@ -104,7 +104,11 @@ def main():
         exit(0)
 
     if arguments.command == "build":
-        metadock.build(schematic_globs=arguments.schematic_globs, template_globs=arguments.template_globs)
+        build_result = metadock.build(
+            schematic_globs=arguments.schematic_globs, template_globs=arguments.template_globs
+        )
+        for generated_document in build_result.generated_documents:
+            print("Generated document (%s): \t%s" % (generated_document.status.value, generated_document.path))
         print("Build successful!")
         exit(0)
 
