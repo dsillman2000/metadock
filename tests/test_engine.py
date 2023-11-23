@@ -48,7 +48,7 @@ def metadock_project(tmp_path):
             target_formats: [ md ]
             context:
               var1: This
-              var2: ignored
+              var2: a test
         """
     )
 
@@ -100,3 +100,39 @@ def test_metadock_project_validate(metadock_project):
 def test_metadock_project_list(metadock_project):
     schematics = metadock_project.list(schematic_globs=["schematic1*"])
     assert set(schematics) == {"schematic1a", "schematic1b"}
+
+
+def test_metadock_templated_document(metadock_project):
+    templated_doc_1 = metadock_project.templated_documents["template1.md"]
+    templated_doc_2 = metadock_project.templated_documents["template2.md"]
+
+    assert templated_doc_1.content() == "Simple plaintext document."
+    assert templated_doc_2.content() == "{{ var1 }} is {{ var2 }}."
+
+
+def test_metadock_content_schematic(metadock_project):
+    content_schem_1a = metadock_project.content_schematics["schematic1a"]
+    content_schem_1b = metadock_project.content_schematics["schematic1b"]
+    content_schem_2a = metadock_project.content_schematics["schematic2a"]
+    content_schem_2b = metadock_project.content_schematics["schematic2b"]
+
+    assert content_schem_1a.template == "template1.md"
+    assert content_schem_1b.template == "template1.md"
+    assert content_schem_2a.template == "template2.md"
+    assert content_schem_2b.template == "template2.md"
+
+    assert content_schem_1a.target_formats == content_schem_1b.target_formats == ["md"]
+    assert content_schem_2a.target_formats == content_schem_2b.target_formats == ["md"]
+
+    assert content_schem_1a.context == content_schem_2a.context == {}
+    assert content_schem_1b.context == {"var1": "This", "var2": "ignored"}
+    assert content_schem_2b.context == {"var1": "This", "var2": "a test"}
+
+    assert (
+        content_schem_1a.to_compiled_targets(metadock_project)
+        == content_schem_1b.to_compiled_targets(metadock_project)
+        == {"md": "Simple plaintext document."}
+    )
+
+    assert content_schem_2a.to_compiled_targets(metadock_project) == {"md": " is ."}
+    assert content_schem_2b.to_compiled_targets(metadock_project) == {"md": "This is a test."}
