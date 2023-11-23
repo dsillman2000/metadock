@@ -74,8 +74,8 @@ For more information, please check out the Jira ticket associated with this MR, 
 <p>This is a very simple MR format which can easily be generalized to allow for quickly generating large sets of docs which
 meet the same format and style requirements. An example <em>content schematic</em> which could service this template could
 be in <code>gitlab_mr__feature1.yml</code>:</p>
-<pre><code class="language-yml">#... 
-# yaml anchor definitions 
+<pre><code class="language-yml">#...
+# yaml anchor definitions
 #...
 
 content_schematics:
@@ -97,7 +97,7 @@ content_schematics:
         - &quot;Added unit tests for valid software version, invalid software version, missing software version.&quot;
       breaking_changes:
         - summary: &quot;Dropping all records which are missing software version.&quot;
-          affected_downstream: 
+          affected_downstream:
             - *Stakeholder-Service
             - *Stakeholder-Analytics
           suggested_remedy: |

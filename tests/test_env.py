@@ -66,7 +66,7 @@ def test_env__table_helpers(empty_metadock_project_dir):
             template: template1.md
             target_formats: [ md ]
             context:
-              _table: 
+              _table:
                 # bold_header: false
                 rows: *table_rows
 
@@ -139,8 +139,8 @@ def test_env__blockquote(empty_metadock_project_dir):
     assert (project_dir / "generated_documents" / "example2.md").read_text() == (
         """As Captain Kirk once said,
 
-> This reminds me of something Spock said once: 
-> 
+> This reminds me of something Spock said once:
+>
 > > Fascinating."""
     )
 

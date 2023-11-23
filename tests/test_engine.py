@@ -14,12 +14,12 @@ def metadock_project(empty_metadock_project_dir):
     (project_dir / "content_schematics" / "schematic1.yml").write_text(
         """
         content_schematics:
-                                                                       
+
           - name: schematic1a
             template: template1.md
             target_formats: [ md ]
             context: { }
-                                                                       
+
           - name: schematic1b
             template: template1.md
             target_formats: [ md ]
@@ -31,12 +31,12 @@ def metadock_project(empty_metadock_project_dir):
     (project_dir / "content_schematics" / "schematic2.yml").write_text(
         """
         content_schematics:
-                                                                       
+
           - name: schematic2a
             template: template2.md
             target_formats: [ md ]
             context: { }
-                                                                       
+
           - name: schematic2b
             template: template2.md
             target_formats: [ md ]

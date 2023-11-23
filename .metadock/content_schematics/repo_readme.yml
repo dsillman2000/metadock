@@ -42,8 +42,8 @@
   For more information, please check out the Jira ticket associated with this MR, {{ jira_ticket_id }}.
 
 .example_project_content_schematics_gitlab_mr__feature1_yml: &example_project_content_schematics_gitlab_mr__feature1_yml |
-  #... 
-  # yaml anchor definitions 
+  #...
+  # yaml anchor definitions
   #...
 
   content_schematics:
@@ -65,7 +65,7 @@
           - "Added unit tests for valid software version, invalid software version, missing software version."
         breaking_changes:
           - summary: "Dropping all records which are missing software version."
-            affected_downstream: 
+            affected_downstream:
               - *Stakeholder-Service
               - *Stakeholder-Analytics
             suggested_remedy: |
@@ -84,7 +84,7 @@
 
   - Dropping all records which are missing software version.
     - **Affected downstream stakeholders**: Service, Analytics.
-    - **Suggested remedy**: 
+    - **Suggested remedy**:
       - Drop all records which are missing software version.
       - Add software version as a hard requirement for staging.
 
@@ -175,7 +175,7 @@ content_schematics:
         generated_documents:
           gitlab_mr__feature1.md: *example_project_generated_documents_gitlab_mr__feature1_md
           gitlab_mr__feature1.html: *example_project_generated_documents_gitlab_mr__feature1_html
-      
+
       # CLI information
       cli:
         usage_string: *cli_usage_string
@@ -184,7 +184,7 @@ content_schematics:
           init:
             description: Used to initialize a fresh Metadock project in a folder which does not currently have one.
             usage: metadock [-p PROJECT_DIR] init
-            python_interface: 
+            python_interface:
               method_name: metadock.Metadock.init
               signature: (Path | str) -> metadock.Metadock
 
@@ -194,9 +194,9 @@ content_schematics:
             python_interface:
               method_name: metadock.Metadock.validate
               signature: () -> metadock.engine.MetadockProjectValidationResult
-          
 
-        
+
+
       # Target formats
       target_formats:
         md+html:
