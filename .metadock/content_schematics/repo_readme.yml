@@ -184,18 +184,27 @@ content_schematics:
           init:
             description: Used to initialize a fresh Metadock project in a folder which does not currently have one.
             usage: metadock [-p PROJECT_DIR] init
-            python_interface:
-              method_name: metadock.Metadock.init
-              signature: (Path | str) -> metadock.Metadock
+            python_interface: *python_interface_init
 
           validate:
             description: Used to validate the structure of an existing Metadock project.
             usage: metadock [-p PROJECT_DIR] validate
-            python_interface:
-              method_name: metadock.Metadock.validate
-              signature: () -> metadock.engine.MetadockProjectValidationResult
+            python_interface: *python_interface_validate
 
+          build:
+            description: Used to build a Metadock project, rendering some or all documents.
+            usage: metadock [-p PROJECT_DIR] build [-s SCHEMATIC_GLOBS [SCHEMATIC_GLOBS ...]] [-t TEMPLATE_GLOBS [TEMPLATE_GLOBS ...]]
+            python_interface: *python_interface_build
 
+          list:
+            description: Used to list all recognized documents which can be generated from a given selection.
+            usage: metadock [-p PROJECT_DIR] list [-s SCHEMATIC_GLOBS [SCHEMATIC_GLOBS ...]] [-t TEMPLATE_GLOBS [TEMPLATE_GLOBS ...]]
+            python_interface: *python_interface_list
+          
+          clean:
+            description: Used to clean the generated_documents directory for the Metadock project.
+            usage: metadock [-p PROJECT_DIR] clean
+            python_interface: *python_interface_clean
 
       # Target formats
       target_formats:

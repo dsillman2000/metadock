@@ -137,6 +137,7 @@ class MetadockProject:
     """
 
     directory: Path
+    environment: jinja2.Environment
 
     def __init__(self, directory: Path | str):
         """Open an existing Metadock project directory.
@@ -145,6 +146,10 @@ class MetadockProject:
             directory (Path | str): .metadock directory to open
         """
         self.directory = Path(directory)
+        self.environment = MetadockEnv().jinja_environment()
+        # self.environment.globals |= env_dict["exports"]
+        # self.environment.globals |= env_dict["namespaces"]
+        # self.environment.filters |= env_dict["filters"]
 
     @cached_property
     def templated_documents_directory(self) -> Path:
@@ -384,7 +389,7 @@ class MetadockTemplatedDocument(pydantic.BaseModel):
         with self.absolute_path.open("r") as handle:
             return handle.read()
 
-    def jinja_template(self) -> jinja2.Template:
+    def jinja_template(self, project: MetadockProject) -> jinja2.Template:
         """Parses the content of the templated document as a Jinja2 template.
 
         Raises:
@@ -394,7 +399,8 @@ class MetadockTemplatedDocument(pydantic.BaseModel):
             jinja2.Template: The parsed Jinja2 template.
         """
         try:
-            return jinja2.Template(self.content())
+            template = project.environment.from_string(self.content())
+            return template
         except Exception as e:
             raise exceptions.MetadockTemplateParsingException(
                 "Failed to parse jinja2.Template from %s,\n\tdue to exception:\n%s"
@@ -433,7 +439,9 @@ class MetadockContentSchematic(pydantic.BaseModel):
         for target_format in self.target_formats:
             target_format = MetadockTargetFormatFactory.target_format(target_format)
             templated_document = project.templated_documents[self.template]
-            rendered_document = templated_document.jinja_template().render(self.context | MetadockEnv().dict())
+            rendered_document = templated_document.jinja_template(project).render(
+                self.context
+            )  #  | MetadockEnv().dict())
             post_processed_document = target_format.handler(rendered_document)
 
             compiled_targets[target_format.identifier] = post_processed_document

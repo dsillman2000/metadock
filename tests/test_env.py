@@ -42,9 +42,9 @@ def test_env__table_helpers(empty_metadock_project_dir):
     # Create some dummy files within the directories
     (project_dir / "templated_documents" / "template1.md").write_text(
         """
-        {{ table.header("Name", "Contact", "Last contacted date", bold=_table.get("bold_header")) }}
-        {% for row in _table["rows"] -%}
-        {{ table.row(row["name"], row["contact"], row["last_contact"]) }}
+        {{ md.tablehead("Name", "Contact", "Last contacted date", bold=table.get("bold_header")) }}
+        {% for row in table["rows"] -%}
+        {{ md.tablerow(row["name"], row["contact"], row["last_contact"]) }}
         {% endfor -%}
         """.strip().replace(
             "    ", ""
@@ -66,7 +66,7 @@ def test_env__table_helpers(empty_metadock_project_dir):
             template: template1.md
             target_formats: [ md ]
             context:
-              _table:
+              table:
                 # bold_header: false
                 rows: *table_rows
 
@@ -74,7 +74,7 @@ def test_env__table_helpers(empty_metadock_project_dir):
             template: template1.md
             target_formats: [ md ]
             context:
-              _table:
+              table:
                 bold_header: true
                 rows: *table_rows
         """
@@ -105,12 +105,12 @@ def test_env__blockquote(empty_metadock_project_dir):
     (project_dir / "templated_documents" / "template1.md").write_text(
         """As Captain Kirk once said,
 
-{{ blockquote(kirk_quote) }}"""
+{{ md.blockquote(kirk_quote) }}"""
     )
     (project_dir / "templated_documents" / "template2.md").write_text(
         """As Captain Kirk once said,
 
-{{ blockquote("This reminds me of something Spock said once: \n\n" ~ blockquote(spock_quote)) }}"""
+{{ md.blockquote("This reminds me of something Spock said once: \n\n" ~ md.blockquote(spock_quote)) }}"""
     )
     (project_dir / "content_schematics" / "schematic1.yml").write_text(
         """
@@ -150,7 +150,7 @@ def test_env__codeblock(empty_metadock_project_dir):
     (project_dir / "templated_documents" / "template1.md").write_text(
         """The source code for this project:
 
-{{ codeblock(code_text, language=language) }}"""
+{{ md.codeblock(code_text, language=language) }}"""
     )
     (project_dir / "content_schematics" / "schematic1.yml").write_text(
         """
@@ -194,7 +194,7 @@ def hello_world():
 
 def test_env__code(empty_metadock_project_dir):
     project_dir = empty_metadock_project_dir
-    (project_dir / "templated_documents" / "template1.md").write_text("""The password is {{ code("secret123") }}""")
+    (project_dir / "templated_documents" / "template1.md").write_text("""The password is {{ md.code("secret123") }}""")
     (project_dir / "content_schematics" / "schematic1.yml").write_text(
         """
         content_schematics:
@@ -209,3 +209,169 @@ def test_env__code(empty_metadock_project_dir):
     metadock.build()
 
     assert (project_dir / "generated_documents" / "example1.md").read_text() == ("""The password is `secret123`""")
+
+
+def test_env__list(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "simple.md").write_text(
+        """The list of fruit names is:
+
+{{ md.list(fruits.keys()) }}
+
+Their prices are:
+
+{{ md.list(fruits.values()) }}"""
+    )
+    (project_dir / "templated_documents" / "simple_2.md").write_text(
+        """The list of fruit names is:
+
+{{ fruits.keys() | md.list }}
+
+Their prices are:
+
+{{ fruits.values() | md.list }}"""
+    )
+    (project_dir / "templated_documents" / "complex.md").write_text(
+        """
+{%- set fruit_price_lists =  fruits.values() | map("with_prefix", "Price: $") | map("md.list") -%}
+{%- set fruit_prices = fruits.keys() | zip(fruit_price_lists) | chain | md.list -%}
+The list of fruits is:
+
+{{ fruit_prices }}"""
+    )
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        fruit_data: &fruit_data
+          apple: 3.95
+          banana: 1.00
+          cherry: 0.20
+
+        content_schematics:
+          - name: example1
+            template: simple.md
+            target_formats: [ md ]
+            context:
+              fruits: *fruit_data
+
+          - name: example1_2
+            template: simple_2.md
+            target_formats: [ md ]
+            context:
+              fruits: *fruit_data
+
+          - name: example2
+            template: complex.md
+            target_formats: [ md ]
+            context:
+              fruits: *fruit_data
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (
+        (project_dir / "generated_documents" / "example1.md").read_text()
+        == (project_dir / "generated_documents" / "example1_2.md").read_text()
+        == (
+            """The list of fruit names is:
+
+- apple
+- banana
+- cherry
+
+Their prices are:
+
+- 3.95
+- 1.00
+- 0.20"""
+        )
+    )
+    assert (project_dir / "generated_documents" / "example2.md").read_text() == (
+        """The list of fruits is:
+
+- apple
+  - Price: $3.95
+- banana
+  - Price: $1.00
+- cherry
+  - Price: $0.20"""
+    )
+
+
+def test_env__html_biu(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "simple.md").write_text(
+        """{{ html.bold("bold") }}
+{{ html.italic("italic") }}
+{{ html.underline("underline") }}"""
+    )
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: example1
+            template: simple.md
+            target_formats: [ md ]
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == (
+        """<b>bold</b>
+<i>italic</i>
+<u>underline</u>"""
+    )
+
+
+def test_env__html_details(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "simple.md").write_text(
+        """{{ html.details(html.summary("Short"), "Much longer description, verbose version.") }}"""
+    )
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: example1
+            template: simple.md
+            target_formats: [ md ]
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == (
+        """<details>
+<summary>
+Short
+</summary>
+
+Much longer description, verbose version.
+</details>"""
+    )
+
+
+def test_env__inline(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "simple.md").write_text("""{{ lines | join("\n") | inline }}""")
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: example1
+            template: simple.md
+            target_formats: [ md ]
+            context:
+              lines:
+              - This is a paragraph with a line break.
+              - This is the second line.
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == (
+        """This is a paragraph with a line break. This is the second line."""
+    )

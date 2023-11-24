@@ -34,7 +34,7 @@ The root of your project is expected to have a `.metadock` folder, which can be 
 
 ## Basic CLI Usage
 
-The `metadock` CLI, installed using `pip install metadock`, has five basic commands, spelled out in the help message:
+The `metadock` CLI, installed using `pip install metadock`, has 5 basic commands, spelled out in the help message:
 
 ```sh
 usage: metadock [-h] [-p PROJECT_DIR] {init,validate,build,list,clean} ...
@@ -55,6 +55,95 @@ options:
   -p PROJECT_DIR, --project-dir PROJECT_DIR
                         Project directory containing a .metadock directory.
 ```
+
+Each of the commands supports a programmatic invocation from the `metadock.Metadock` class via a Python interface.
+
+<details>
+<summary>
+<code>metadock init</code>
+</summary>
+
+<ul>
+<li><strong>Description</strong>: Used to initialize a fresh Metadock project in a folder which does not currently have one.</li>
+<li><strong>Usage</strong>: <code>metadock [-p PROJECT_DIR] init</code></li>
+<li>
+<strong>Python interface</strong>:<ul>
+<li>Name: <code>metadock.Metadock.init</code></li>
+<li>Signature: <code>(Path | str) -&gt; metadock.Metadock</code></li>
+</ul>
+</li>
+</ul>
+
+</details>
+<details>
+<summary>
+<code>metadock validate</code>
+</summary>
+
+<ul>
+<li><strong>Description</strong>: Used to validate the structure of an existing Metadock project.</li>
+<li><strong>Usage</strong>: <code>metadock [-p PROJECT_DIR] validate</code></li>
+<li>
+<strong>Python interface</strong>:<ul>
+<li>Name: <code>metadock.Metadock.validate</code></li>
+<li>Signature: <code>() -&gt; metadock.engine.MetadockProjectValidationResult</code></li>
+</ul>
+</li>
+</ul>
+
+</details>
+<details>
+<summary>
+<code>metadock build</code>
+</summary>
+
+<ul>
+<li><strong>Description</strong>: Used to build a Metadock project, rendering some or all documents.</li>
+<li><strong>Usage</strong>: <code>metadock [-p PROJECT_DIR] build [-s SCHEMATIC_GLOBS [SCHEMATIC_GLOBS ...]] [-t TEMPLATE_GLOBS [TEMPLATE_GLOBS ...]]</code></li>
+<li>
+<strong>Python interface</strong>:<ul>
+<li>Name: <code>metadock.Metadock.build</code></li>
+<li>Signature: <code>(list[str], list[str]) -&gt;  metadock.engine.MetadockProjectBuildResult</code></li>
+</ul>
+</li>
+</ul>
+
+</details>
+<details>
+<summary>
+<code>metadock list</code>
+</summary>
+
+<ul>
+<li><strong>Description</strong>: Used to list all recognized documents which can be generated from a given selection.</li>
+<li><strong>Usage</strong>: <code>metadock [-p PROJECT_DIR] list [-s SCHEMATIC_GLOBS [SCHEMATIC_GLOBS ...]] [-t TEMPLATE_GLOBS [TEMPLATE_GLOBS ...]]</code></li>
+<li>
+<strong>Python interface</strong>:<ul>
+<li>Name: <code>metadock.Metadock.list</code></li>
+<li>Signature: <code>(list[str], list[str]) -&gt;  metadock.engine.MetadockProjectListResult</code></li>
+</ul>
+</li>
+</ul>
+
+</details>
+<details>
+<summary>
+<code>metadock clean</code>
+</summary>
+
+<ul>
+<li><strong>Description</strong>: Used to clean the generated_documents directory for the Metadock project.</li>
+<li><strong>Usage</strong>: <code>metadock [-p PROJECT_DIR] clean</code></li>
+<li>
+<strong>Python interface</strong>:<ul>
+<li>Name: <code>metadock.Metadock.clean</code></li>
+<li>Signature: <code>() -&gt; None</code></li>
+</ul>
+</li>
+</ul>
+
+</details>
+
 
 ## Example Usage
 
@@ -178,8 +267,8 @@ The natively supported values for `target_formats` are:
 - `md+html`:
   - Generates the given template, parses it into a markdown document, and then generates HTML from it.
 - Anything else, e.g. `txt`, `sql` or `py`
-  - Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
-    `.py`.
+- Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
+        `.py`.
 
 ## Acknowledgements
 

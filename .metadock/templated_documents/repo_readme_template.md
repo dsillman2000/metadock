@@ -11,23 +11,37 @@ Gitlab, or a static website. You can then compile your markdown documents using 
 
 A simple Metadock-enabled project might look something like this:
 
-{{ codeblock(example_project.get("structure")) }}
+{{ md.codeblock(example_project.get("structure")) }}
 
 The root of your project is expected to have a `.metadock` folder, which can be generated from the CLI using
 `metadock init`.
 
 ## Basic CLI Usage
 
-The `metadock` CLI, installed using `pip install metadock`, has five basic commands, spelled out in the help message:
+The `metadock` CLI, installed using `pip install metadock`, has {{ cli.get("commands") | length }} basic commands, spelled out in the help message:
 
-{{ codeblock(cli.get("usage_string"), language="sh") }}
+{{ md.codeblock(cli.get("usage_string"), language="sh") }}
+
+Each of the commands supports a programmatic invocation from the `metadock.Metadock` class via a Python interface.
+
+{% for command, spec in cli.get("commands").items() -%}
+{%- set command_details -%}
+- **Description**: {{ spec.get("description") }}
+- **Usage**: {{ md.code(spec.get("usage")) }}
+- **Python interface**: 
+    {%- set python_interface = spec.get("python_interface") %}
+  - Name: {{ md.code(python_interface.get("method_name")) }}
+  - Signature: {{ md.code(python_interface.get("signature")) }}
+{%- endset -%}
+{{ html.details(html.summary(html.code("metadock " ~ command)), (command_details | md.convert)) }}
+{% endfor %}
 
 ## Example Usage
 
 In the example above, we can imagine the content of our template, `gitlab_mr_template.md`, to look something like this:
 
 {{
-    codeblock(
+    md.codeblock(
         example_project.get("templated_documents").get("gitlab_mr_template.md"),
         language="md",
     )
@@ -38,7 +52,7 @@ meet the same format and style requirements. An example *content schematic* whic
 be in `gitlab_mr__feature1.yml`:
 
 {{
-    codeblock(
+    md.codeblock(
         example_project.get("content_schematics").get("gitlab_mr__feature1.yml"),
         language="yml",
     )
@@ -47,13 +61,13 @@ be in `gitlab_mr__feature1.yml`:
 By invoking the CLI with `metadock build`, our template is compiled to look something like this, in a markdown file
 called `generated_documents/gitlab_mr__feature1.md`:
 
-{{ blockquote(example_project.get("generated_documents").get("gitlab_mr__feature1.md")) }}
+{{ md.blockquote(example_project.get("generated_documents").get("gitlab_mr__feature1.md")) }}
 
 Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for free,
 located at `generated_documents/gitlab_mr__feature_1.html`:
 
 {{
-    codeblock(
+    md.codeblock(
         example_project.get("generated_documents").get("gitlab_mr__feature1.html"),
         language="html",
     )
@@ -68,14 +82,18 @@ generated file.
 
 The natively supported values for `target_formats` are:
 {% for target_format, data in target_formats.items() %}
-{{ list(code(target_format) ~ ":", list(data.get("description"))) }}
+{{ md.list(md.code(target_format) ~ ":", md.list(data.get("description"))) }}
 {% endfor -%}
-- Anything else, e.g. `txt`, `sql` or `py`
-  - Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
-    `.py`.
+{{ 
+    md.list(
+        "Anything else, e.g. `txt`, `sql` or `py`", 
+        "Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
+        `.py`."
+    ) 
+}}
 
 ## Acknowledgements
 
 Author{% if (authors | length) > 1 %}s{% endif %}:
 
-{{ list(*authors) }}
+{{ md.list(*authors) }}
