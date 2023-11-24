@@ -178,8 +178,8 @@ The natively supported values for `target_formats` are:
 - `md+html`:
   - Generates the given template, parses it into a markdown document, and then generates HTML from it.
 - Anything else, e.g. `txt`, `sql` or `py`
-  - Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
-    `.py`.
+- Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
+        `.py`.
 
 ## Acknowledgements
 

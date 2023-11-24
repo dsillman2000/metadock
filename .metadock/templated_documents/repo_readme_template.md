@@ -68,7 +68,7 @@ generated file.
 
 The natively supported values for `target_formats` are:
 {% for target_format, data in target_formats.items() %}
-{{ md.list(code(target_format) ~ ":", md.list(data.get("description"))) }}
+{{ md.list(md.code(target_format) ~ ":", md.list(data.get("description"))) }}
 {% endfor -%}
 {{ 
     md.list(

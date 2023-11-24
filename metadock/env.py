@@ -75,8 +75,7 @@ class MetadockMdNamespace:
     def list_filter(self, values: Iterable[str]):
         if _is_nonstr_iter(values):
             return self.list(*values)
-        assert isinstance(values, str)
-        return self.list(values)
+        return self.list(str(values))
 
 
 class MetadockEnv(MetadockNamespace):
