@@ -394,7 +394,12 @@ class MetadockTemplatedDocument(pydantic.BaseModel):
             jinja2.Template: The parsed Jinja2 template.
         """
         try:
-            return jinja2.Template(self.content())
+            template = jinja2.Template(self.content())
+            env_dict = MetadockEnv().dict()
+            template.environment.globals.update(env_dict["exports"])
+            template.environment.globals.update(env_dict["namespaces"])
+            template.environment.filters.update(env_dict["filters"])
+            return template
         except Exception as e:
             raise exceptions.MetadockTemplateParsingException(
                 "Failed to parse jinja2.Template from %s,\n\tdue to exception:\n%s"
@@ -433,7 +438,7 @@ class MetadockContentSchematic(pydantic.BaseModel):
         for target_format in self.target_formats:
             target_format = MetadockTargetFormatFactory.target_format(target_format)
             templated_document = project.templated_documents[self.template]
-            rendered_document = templated_document.jinja_template().render(self.context | MetadockEnv().dict())
+            rendered_document = templated_document.jinja_template().render(self.context)  #  | MetadockEnv().dict())
             post_processed_document = target_format.handler(rendered_document)
 
             compiled_targets[target_format.identifier] = post_processed_document
