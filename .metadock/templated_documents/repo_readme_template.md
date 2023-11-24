@@ -18,9 +18,23 @@ The root of your project is expected to have a `.metadock` folder, which can be 
 
 ## Basic CLI Usage
 
-The `metadock` CLI, installed using `pip install metadock`, has five basic commands, spelled out in the help message:
+The `metadock` CLI, installed using `pip install metadock`, has {{ cli.get("commands") | length }} basic commands, spelled out in the help message:
 
 {{ md.codeblock(cli.get("usage_string"), language="sh") }}
+
+Each of the commands supports a programmatic invocation from the `metadock.Metadock` class via a Python interface.
+
+{% for command, spec in cli.get("commands").items() -%}
+{%- set command_details -%}
+- **Description**: {{ spec.get("description") }}
+- **Usage**: {{ md.code(spec.get("usage")) }}
+- **Python interface**: 
+    {%- set python_interface = spec.get("python_interface") %}
+  - Name: {{ md.code(python_interface.get("method_name")) }}
+  - Signature: {{ md.code(python_interface.get("signature")) }}
+{%- endset -%}
+{{ html.details(html.summary(html.code("metadock " ~ command)), (command_details | md.convert)) }}
+{% endfor %}
 
 ## Example Usage
 

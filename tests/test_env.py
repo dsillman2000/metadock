@@ -297,3 +297,81 @@ Their prices are:
 - cherry
   - Price: $0.20"""
     )
+
+
+def test_env__html_biu(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "simple.md").write_text(
+        """{{ html.bold("bold") }}
+{{ html.italic("italic") }}
+{{ html.underline("underline") }}"""
+    )
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: example1
+            template: simple.md
+            target_formats: [ md ]
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == (
+        """<b>bold</b>
+<i>italic</i>
+<u>underline</u>"""
+    )
+
+
+def test_env__html_details(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "simple.md").write_text(
+        """{{ html.details(html.summary("Short"), "Much longer description, verbose version.") }}"""
+    )
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: example1
+            template: simple.md
+            target_formats: [ md ]
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == (
+        """<details>
+<summary>
+Short
+</summary>
+
+Much longer description, verbose version.
+</details>"""
+    )
+
+
+def test_env__inline(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "simple.md").write_text("""{{ lines | join("\n") | inline }}""")
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: example1
+            template: simple.md
+            target_formats: [ md ]
+            context:
+              lines:
+              - This is a paragraph with a line break.
+              - This is the second line.
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == (
+        """This is a paragraph with a line break. This is the second line."""
+    )
