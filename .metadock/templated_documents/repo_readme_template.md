@@ -130,9 +130,9 @@ and filters which can be used to make formatting content easier. The macros and 
 {%- endset -%}
 {{ namespace_intro }}
 
-{{ html.details(html.summary("Jinja macro reference"), ns_macro_table) }}
+{{ html.details(html.summary("Jinja macro reference"), ns_macro_table | md.convert) }}
 
-{{ html.details(html.summary("Jinja filter reference"), ns_filter_table) }}
+{{ html.details(html.summary("Jinja filter reference"), ns_filter_table | md.convert) }}
 
 {% endfor %}
 

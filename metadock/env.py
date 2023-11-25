@@ -4,7 +4,7 @@ import itertools
 from typing import Annotated, Any, Iterable, Literal, Sequence
 
 import jinja2
-import marko
+from marko.ext.gfm import gfm
 
 
 def _is_nonstr_iter(item: Any) -> bool:
@@ -178,7 +178,7 @@ class MetadockMdNamespace(MetadockNamespace):
         return self.tablerow(*_pipe_escaped_cells) + "\n" + self.tablerow(*(["---"] * len(_pipe_escaped_cells)))
 
     def convert_filter(self, md_content: str) -> str:
-        """Filter which converts Markdown content to HTML, by invoking `marko.convert`.
+        """Filter which converts Markdown content to HTML, by invoking `marko.convert` (using github-flavored md).
 
         Args:
             md_content (str): The Markdown content to be converted to HTML.
@@ -186,7 +186,7 @@ class MetadockMdNamespace(MetadockNamespace):
         Returns:
             str: The HTML content.
         """
-        return marko.convert(md_content)
+        return gfm.convert(md_content)
 
     def list_filter(self, values: str | Iterable[str]) -> str:
         """Filter which unpacks an iterable of values into a Markdown list, or formats a single value as a Markdown list

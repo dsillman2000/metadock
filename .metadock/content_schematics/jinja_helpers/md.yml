@@ -128,7 +128,7 @@ md:
   filters:
     convert:
       docstring: |
-        Filter which converts Markdown content to HTML, by invoking `marko.convert`.
+        Filter which converts Markdown content to HTML, by invoking `marko.convert` (using github-flavored md).
       example: |
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
