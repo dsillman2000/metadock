@@ -7,7 +7,7 @@ repos:
 
 - repo: local
   hooks:
-  - id: metadock-build-README
+  - id: metadock-build
     name: Metadock-build README
-    entry: bash -c './.git/hooks/pre-commit || true'
+    entry: bash .metadock/metadock-build-docs.sh
     language: system
