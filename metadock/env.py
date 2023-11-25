@@ -349,6 +349,7 @@ class MetadockEnv(MetadockNamespace):
         inline
         with_prefix
         with_suffix
+        wrap
         zip
     """
 
@@ -356,7 +357,7 @@ class MetadockEnv(MetadockNamespace):
     html = MetadockHtmlNamespace()
     exports = ["debug"]
     namespaces = ["html", "md"]
-    filters = ["chain", "inline", "with_prefix", "with_suffix", "zip"]
+    filters = ["chain", "inline", "with_prefix", "with_suffix", "wrap", "zip"]
 
     def debug(self, message: str) -> Literal[""]:
         """Prints a debug message to stdout, and returns an empty string."""
@@ -411,6 +412,18 @@ class MetadockEnv(MetadockNamespace):
             str: The suffixed string.
         """
         return sep.join((value, suffix))
+
+    def wrap_filter(self, value: str, wrap: str) -> str:
+        """Filter which wraps an inner string with a given outer string.
+
+        Args:
+            value (str): Piped input string to be wrapped.
+            wrap (str): String to wrap the input string with.
+
+        Returns:
+            str: The wrapped string.
+        """
+        return wrap + value + wrap
 
     def zip_filter(self, input_iterable: Iterable[Any], *iterables: Iterable[Any]) -> Iterable[tuple[Any, ...]]:
         """Filter which zips an input iterable with one or more iterables.

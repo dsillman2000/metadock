@@ -42,6 +42,14 @@
         ],
         "description": "With suffix filter"
     },
+    "(filter) Wrap text": {
+        "scope": "jinja-md,md",
+        "prefix": "wrap",
+        "body": [
+            "wrap($1)"
+        ],
+        "description": "Wrap text filter"
+    },
     "(filter) Zip iterables": {
         "scope": "jinja-md,md",
         "prefix": "zip",
@@ -143,15 +151,6 @@
         "description": "HTML code macro"
     },
     
-    "(macro) HTML pre": {
-        "scope": "jinja-md,md",
-        "prefix": "html.pre",
-        "body": [
-            "html.pre($1)"
-        ],
-        "description": "HTML pre macro"
-    },
-    
     "(macro) HTML details": {
         "scope": "jinja-md,md",
         "prefix": "html.details",
@@ -168,6 +167,15 @@
             "html.italic($1)"
         ],
         "description": "HTML italic macro"
+    },
+    
+    "(macro) HTML pre": {
+        "scope": "jinja-md,md",
+        "prefix": "html.pre",
+        "body": [
+            "html.pre($1)"
+        ],
+        "description": "HTML pre macro"
     },
     
     "(macro) HTML summary": {

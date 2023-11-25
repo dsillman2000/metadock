@@ -2,21 +2,6 @@ html:
   docstring: |
     Jinja namespace which owns HTML-related functions and filters.
 
-    **Macros**:
-
-        bold
-        code
-        codeblock
-        details
-        italic
-        summary
-        underline
-
-    **Filters**:
-
-        escape
-        inline
-
   macros:
     bold:
       docstring: |
@@ -50,23 +35,6 @@ html:
         snippet_body:
           - html.code($1)
 
-    pre:
-      docstring: |
-        Wraps a string in preformatted HTML pre tags (<pre></pre>), and indents the content by the
-        given amount.
-      example: |
-        >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
-        >>> env.from_string("{{ html.pre('This is code text.', indent = 4) }}").render()
-        '<pre>    This is code text.</pre>'
-      source_file: metadock/env.py
-      method_name: metadock.env.MetadockHtmlNamespace.pre
-      signature: "(self, content: str, indent: int = 0) -> str"
-      intellisense:
-        snippet_key: HTML pre
-        snippet_body:
-          - html.pre($1)
-
     details:
       docstring: |
         Wraps a string in line-broken HTML details tags (<details></details>). Multiple arguments get separated by two 
@@ -99,6 +67,23 @@ html:
         snippet_key: HTML italic
         snippet_body:
           - html.italic($1)
+
+    pre:
+      docstring: |
+        Wraps a string in preformatted HTML pre tags (<pre></pre>), and indents the content by the
+        given amount.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.pre('This is code text.', indent = 4) }}").render()
+        '<pre>    This is code text.</pre>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.pre
+      signature: "(self, content: str, indent: int = 0) -> str"
+      intellisense:
+        snippet_key: HTML pre
+        snippet_body:
+          - html.pre($1)
 
     summary:
       docstring: |

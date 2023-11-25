@@ -34,7 +34,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
   - Name: {{ md.code(python_interface.get("method_name")) }}
   - Signature: {{ md.code(python_interface.get("signature")) }}
 {%- endset -%}
-{{ html.details(html.summary(html.code("metadock " ~ command)), (command_details | md.convert)) }}
+    {{ html.details(html.summary(html.code("metadock " ~ command)), (command_details | md.convert)) }}
 {% endfor %}
 
 ## Example Usage
@@ -102,38 +102,81 @@ and filters which can be used to make formatting content easier. The macros and 
 
 {{ namespace_spec.get("docstring") }}
 {% endset -%}
+{%- set ns_macro_intro -%}
+{%- if namespace_spec.get("macros", {}).keys() | length %}
+The following macros are available in the {{ namespace }} namespace:
+
+{{ 
+    namespace_spec.get("macros", {}).keys() 
+    | map("with_prefix", ns_code_prefix) 
+    | map("wrap", "`")
+    | md.list
+}}
+{%- else -%}
+There are no macros available in the {{ namespace }} namespace.
+{%- endif -%}
+{%- endset -%}
 {%- set ns_macro_table -%}
 {{ md.tablehead("Macro", "Signature", "Doc", bold=true) }}
 {% for macro, macro_spec in namespace_spec.get("macros", {}).items() -%}
 {{
     md.tablerow(
-        html.code(ns_code_prefix ~ macro), 
-        html.code(macro_spec.get("method_name") ~ ": " ~ macro_spec.get("signature")),
+        html.pre(ns_code_prefix ~ macro), 
+        html.pre(macro_spec.get("method_name") ~ ": " ~ macro_spec.get("signature")),
         (macro_spec.get("docstring") | inline | html.escape) ~ "<br/><br/>" ~ (html.pre(macro_spec.get("example")) 
         | html.inline),
     )
 }}
 {% endfor -%}
 {%- endset -%}
+{%- set ns_filter_intro -%}
+{%- if namespace_spec.get("filters", {}).keys() | length %}
+The following filters are available in the {{ namespace }} namespace:
+
+{{ 
+    namespace_spec.get("filters", {}).keys() 
+    | map("with_prefix", ns_code_prefix) 
+    | map("wrap", "`")
+    | md.list
+}}
+{%- else -%}
+There are no filters available in the {{ namespace }} namespace.
+{%- endif -%}
+{%- endset -%}
 {%- set ns_filter_table -%}
 {{ md.tablehead("Filter", "Signature", "Doc", bold=true) }}
 {% for filter, filter_spec in namespace_spec.get("filters", {}).items() -%}
 {{
     md.tablerow(
-        html.code(ns_code_prefix ~ filter), 
-        html.code(filter_spec.get("method_name") ~ ": " ~ filter_spec.get("signature")),
-        (filter_spec.get("docstring") | inline | html.escape) ~ "<br/><br/>" ~ (html.pre(filter_spec.get("example")) 
-        | html.inline),
+        html.pre(ns_code_prefix ~ filter), 
+        html.pre(filter_spec.get("method_name") ~ ": " ~ filter_spec.get("signature")),
+        (
+            filter_spec.get("docstring") 
+            | inline 
+            | html.escape
+        ) ~ "<br/><br/>" ~ (
+            html.pre(filter_spec.get("example")) 
+            | html.inline
+        ),
     )
 }}
 {% endfor -%}
 {%- endset -%}
 {{ namespace_intro }}
 
-{{ html.details(html.summary("Jinja macro reference"), ns_macro_table) }}
+#### Jinja macros
+{{ ns_macro_intro }}
 
-{{ html.details(html.summary("Jinja filter reference"), ns_filter_table) }}
+{% if namespace_spec.get("macros", {}).keys() | length -%}
+{{ html.details(html.summary(html.bold("Jinja macro reference")), ns_macro_table) }}
+{%- endif %}
 
+#### Jinja filters
+{{ ns_filter_intro }}
+
+{% if namespace_spec.get("filters", {}).keys() | length -%}
+{{ html.details(html.summary(html.bold("Jinja filter reference")), ns_filter_table) }}
+{% endif %}
 {% endfor %}
 
 ## Acknowledgements

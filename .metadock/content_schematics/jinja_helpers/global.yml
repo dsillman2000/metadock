@@ -2,23 +2,6 @@ global:
   docstring: |
     Jinja namespace for the global Metadock environment, including all global macros, filters, and namespaces.
 
-    **Macros**:
-
-        debug
-
-    **Namespaces**:
-
-        html
-        md
-
-    **Filters**:
-
-        chain
-        inline
-        with_prefix
-        with_suffix
-        zip
-
   macros:
     debug:
       docstring: Prints a debug message to stdout, and returns an empty string.
@@ -104,6 +87,23 @@ global:
         snippet_key: With suffix
         snippet_body:
           - with_suffix($1)
+
+    wrap:
+      docstring: |
+        Filter which wraps an inner string with a given outer string.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> # Wrap with graves, like md.code(...)
+        >>> env.from_string("{{ 'This is a string.' | wrap('`') }}").render()
+        '`This is a string.`'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockEnv.wrap_filter
+      signature: "(self, value: str, wrap: str) -> str"
+      intellisense:
+        snippet_key: Wrap text
+        snippet_body:
+          - wrap($1)
 
     zip:
       docstring: |
