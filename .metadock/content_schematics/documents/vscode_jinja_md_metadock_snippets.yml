@@ -1,0 +1,9 @@
+content_schematics:
+
+  - name: jinja-md
+    template: vscode_jinja_md_metadock.code-snippets
+    target_formats: [ code-snippets ]
+    context:
+
+      # Import jinja helpers context
+      <<: { import: jinja_helpers.yml }

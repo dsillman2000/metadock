@@ -1,7 +1,7 @@
-jinja:
+jinja_helpers:
 
   global:
-  
+
     macros:
 
       debug:
@@ -15,6 +15,10 @@ jinja:
         source_file: metadock/env.py
         method_name: metadock.env.MetadockEnv.debug
         signature: "(self, message: str) -> None"
+        intellisense:
+          snippet_key: Debug message
+          snippet_body: 
+            - debug($1)
 
     filters:
     
@@ -29,6 +33,10 @@ jinja:
         source_file: metadock/env.py
         method_name: metadock.env.MetadockEnv.chain_filter
         signature: "(self, iterables: Sequence[Iterable[Any]]) -> Iterable[Any]"
+        intellisense:
+          snippet_key: Chain iterables
+          snippet_body: 
+            - chain
 
       inline:
         docstring: |
@@ -41,6 +49,10 @@ jinja:
         source_file: metadock/env.py
         method_name: metadock.env.MetadockEnv.inline_filter
         signature: "(self, value: str) -> str"
+        intellisense:
+          snippet_key: Inline text
+          snippet_body: 
+            - inline
 
       with_prefix:
         docstring: |
@@ -55,6 +67,10 @@ jinja:
         source_file: metadock/env.py
         method_name: metadock.env.MetadockEnv.with_prefix_filter
         signature: "(self, value: str, prefix: str, sep: str = '') -> str"
+        intellisense:
+          snippet_key: With prefix
+          snippet_body: 
+            - with_prefix($1)
 
       with_suffix:
         docstring: |
@@ -69,6 +85,10 @@ jinja:
         source_file: metadock/env.py
         method_name: metadock.env.MetadockEnv.with_suffix_filter
         signature: "(self, value: str, suffix: str, sep: str = '') -> str"
+        intellisense:
+          snippet_key: With suffix
+          snippet_body: 
+            - with_suffix($1)
 
       zip:
         docstring: |
@@ -81,5 +101,9 @@ jinja:
         source_file: metadock/env.py
         method_name: metadock.env.MetadockEnv.zip_filter
         signature: "(self, input_iterable: Iterable[Any], *iterables: Iterable[Any]) -> Iterable[tuple[Any, ...]]"
+        intellisense:
+          snippet_key: Zip iterables
+          snippet_body: 
+            - zip($1)
         
     

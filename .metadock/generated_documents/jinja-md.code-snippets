@@ -1,0 +1,79 @@
+{
+    
+    // Metadock snippets for macros and filters in global namespace
+    
+    
+    
+    
+    "(macro) Debug message": {
+        "scope": "jinja-md,md",
+        "prefix": "debug",
+        "body": [
+            "debug($1)"
+        ],
+        "description": "Debug message macro"
+    },
+    
+    
+    
+    
+    
+    "(filter) Chain iterables": {
+        "scope": "jinja-md,md",
+        "prefix": "chain",
+        "body": [
+            "chain"
+        ],
+        "description": "Chain iterables filter"
+    },
+    
+    
+    
+    
+    "(filter) Inline text": {
+        "scope": "jinja-md,md",
+        "prefix": "inline",
+        "body": [
+            "inline"
+        ],
+        "description": "Inline text filter"
+    },
+    
+    
+    
+    
+    "(filter) With prefix": {
+        "scope": "jinja-md,md",
+        "prefix": "with_prefix",
+        "body": [
+            "with_prefix($1)"
+        ],
+        "description": "With prefix filter"
+    },
+    
+    
+    
+    
+    "(filter) With suffix": {
+        "scope": "jinja-md,md",
+        "prefix": "with_suffix",
+        "body": [
+            "with_suffix($1)"
+        ],
+        "description": "With suffix filter"
+    },
+    
+    
+    
+    
+    "(filter) Zip iterables": {
+        "scope": "jinja-md,md",
+        "prefix": "zip",
+        "body": [
+            "zip($1)"
+        ],
+        "description": "Zip iterables filter"
+    },
+    
+    
+}
