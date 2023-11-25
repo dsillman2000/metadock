@@ -51,4 +51,62 @@
         "description": "Zip iterables filter"
     },
     
+    // Metadock snippets for macros and filters in md namespace
+    
+    // Metadock snippets for macros and filters in html namespace
+    
+    "(macro) HTML bold": {
+        "scope": "jinja-md,md",
+        "prefix": "html.bold",
+        "body": [
+            "html.bold($1)"
+        ],
+        "description": "HTML bold macro"
+    },
+    
+    "(macro) HTML code": {
+        "scope": "jinja-md,md",
+        "prefix": "html.code",
+        "body": [
+            "html.code($1)"
+        ],
+        "description": "HTML code macro"
+    },
+    
+    "(macro) HTML codeblock": {
+        "scope": "jinja-md,md",
+        "prefix": "html.codeblock",
+        "body": [
+            "html.codeblock($1)"
+        ],
+        "description": "HTML codeblock macro"
+    },
+    
+    "(macro) HTML details": {
+        "scope": "jinja-md,md",
+        "prefix": "html.details",
+        "body": [
+            "html.details($1)"
+        ],
+        "description": "HTML details macro"
+    },
+    
+    "(macro) HTML italic": {
+        "scope": "jinja-md,md",
+        "prefix": "html.italic",
+        "body": [
+            "html.italic($1)"
+        ],
+        "description": "HTML italic macro"
+    },
+    
+    "(macro) HTML summary": {
+        "scope": "jinja-md,md",
+        "prefix": "html.summary",
+        "body": [
+            "html.summary($1)"
+        ],
+        "description": "HTML summary macro"
+    },
+    
 }
