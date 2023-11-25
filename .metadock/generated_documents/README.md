@@ -70,7 +70,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.init</code></li>
-<li>Signature: <code>(Path | str) -&gt; metadock.Metadock</code></li>
+<li>Signature: <code>(self, working_directory: Path | str = Path.cwd()) -&gt; metadock.Metadock</code></li>
 </ul>
 </li>
 </ul>
@@ -87,7 +87,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.validate</code></li>
-<li>Signature: <code>() -&gt; metadock.engine.MetadockProjectValidationResult</code></li>
+<li>Signature: <code>(self) -&gt; metadock.engine.MetadockProjectValidationResult</code></li>
 </ul>
 </li>
 </ul>
@@ -104,7 +104,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.build</code></li>
-<li>Signature: <code>(list[str], list[str]) -&gt;  metadock.engine.MetadockProjectBuildResult</code></li>
+<li>Signature: <code>&quot;(self, schematic_globs: list[str] = [], template_globs: list[str] = []) -&gt;  metadock.engine.MetadockProjectBuildResult&quot;</code></li>
 </ul>
 </li>
 </ul>
@@ -121,7 +121,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.list</code></li>
-<li>Signature: <code>(list[str], list[str]) -&gt;  list[str]</code></li>
+<li>Signature: <code>(self, schematic_globs: list[str] = [], template_globs: list[str] = []) -&gt;  list[str]</code></li>
 </ul>
 </li>
 </ul>
@@ -138,7 +138,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.clean</code></li>
-<li>Signature: <code>() -&gt; None</code></li>
+<li>Signature: <code>(self) -&gt; None</code></li>
 </ul>
 </li>
 </ul>
@@ -181,10 +181,6 @@ This is a very simple MR format which can easily be generalized to allow for qui
 meet the same format and style requirements. An example *content schematic* which could service this template could
 be in `gitlab_mr__feature1.yml`:
 ```yml
-#...
-# yaml anchor definitions
-#...
-
 content_schematics:
 
 - name: gitlab_mr__feature1
@@ -194,7 +190,8 @@ content_schematics:
   context:
 
     jira:
-      <<: *JiraProject-IGDP
+      project_name: "IGDP"
+      project_id: "12001"
       ticket_num: "13"
 
     merge_request:
@@ -205,8 +202,10 @@ content_schematics:
       breaking_changes:
         - summary: "Dropping all records which are missing software version."
           affected_downstream:
-            - *Stakeholder-Service
-            - *Stakeholder-Analytics
+            - id: Service
+              email: service@company.com
+            - id: Analytics
+              email: analytics-data@company.com
           suggested_remedy: |
             - Drop all records which are missing software version.
             - Add software version as a hard requirement for staging.

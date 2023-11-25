@@ -3,24 +3,25 @@ python_interfaces:
   init:
     source_file: metadock/__init__.py
     method_name: metadock.Metadock.init
-    signature: (Path | str) -> metadock.Metadock
+    signature: "(self, working_directory: Path | str = Path.cwd()) -> metadock.Metadock"
 
   validate:
     source_file: metadock/__init__.py
     method_name: metadock.Metadock.validate
-    signature: () -> metadock.engine.MetadockProjectValidationResult
+    signature: "(self) -> metadock.engine.MetadockProjectValidationResult"
 
   build:
     source_file: metadock/__init__.py
     method_name: metadock.Metadock.build
-    signature: (list[str], list[str]) ->  metadock.engine.MetadockProjectBuildResult
+    signature: |
+      "(self, schematic_globs: list[str] = [], template_globs: list[str] = []) ->  metadock.engine.MetadockProjectBuildResult"
 
   list:
     source_file: metadock/__init__.py
     method_name: metadock.Metadock.list
-    signature: (list[str], list[str]) ->  list[str]
+    signature: "(self, schematic_globs: list[str] = [], template_globs: list[str] = []) ->  list[str]"
 
   clean:
     source_file: metadock/__init__.py
     method_name: metadock.Metadock.clean
-    signature: () -> None
+    signature: (self) -> None

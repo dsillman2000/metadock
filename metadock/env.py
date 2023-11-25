@@ -324,16 +324,16 @@ class MetadockEnv(MetadockNamespace):
         print(message)
         return ""
 
-    def chain_filter(self, values: Sequence[Iterable[Any]]) -> Iterable[Any]:
+    def chain_filter(self, iterables: Sequence[Iterable[Any]]) -> Iterable[Any]:
         """Filter which flattens a sequence of iterables into a single iterable.
 
         Args:
-            values (Sequence[Iterable[Any]]): Piped input sequence of iterables to be flattened.
+            iterables (Sequence[Iterable[Any]]): Piped input sequence of iterables to be flattened.
 
         Returns:
             Iterable[Any]: The flattened iterable.
         """
-        return itertools.chain.from_iterable(values)
+        return itertools.chain.from_iterable(iterables)
 
     def inline_filter(self, value: str) -> str:
         """Filter which inlines a string by replacing all newlines with spaces, and all double spaces with single
@@ -348,7 +348,7 @@ class MetadockEnv(MetadockNamespace):
         return value.replace("\n", " ").replace("  ", " ")
 
     def with_prefix_filter(self, value: str, prefix: str, sep: str = "") -> str:
-        """Filter which concatenates a prefix to a string, with an optional separator.
+        """Filter which prepends a prefix to a string, with an optional separator.
 
         Args:
             value (str): Piped input string to be prefixed.
@@ -361,7 +361,7 @@ class MetadockEnv(MetadockNamespace):
         return sep.join((prefix, value))
 
     def with_suffix_filter(self, value: str, suffix: str, sep: str = "") -> str:
-        """Filter which concatenates a suffix to a string, with an optional separator.
+        """Filter which appends a suffix to a string, with an optional separator.
 
         Args:
             value (str): Piped input string to be suffixed.

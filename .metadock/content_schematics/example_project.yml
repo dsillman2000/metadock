@@ -46,10 +46,6 @@ example_project:
 
   content_schematics:
     gitlab_mr__feature1.yml: |
-      #...
-      # yaml anchor definitions
-      #...
-
       content_schematics:
 
       - name: gitlab_mr__feature1
@@ -59,7 +55,8 @@ example_project:
         context:
 
           jira:
-            <<: *JiraProject-IGDP
+            project_name: "IGDP"
+            project_id: "12001"
             ticket_num: "13"
 
           merge_request:
@@ -70,8 +67,10 @@ example_project:
             breaking_changes:
               - summary: "Dropping all records which are missing software version."
                 affected_downstream:
-                  - *Stakeholder-Service
-                  - *Stakeholder-Analytics
+                  - id: Service
+                    email: service@company.com
+                  - id: Analytics
+                    email: analytics-data@company.com
                 suggested_remedy: |
                   - Drop all records which are missing software version.
                   - Add software version as a hard requirement for staging.
