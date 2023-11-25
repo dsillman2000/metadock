@@ -369,12 +369,17 @@ Jinja macro reference
 <tr>
 <td><code>html.details</code></td>
 <td><code>metadock.env.MetadockHtmlNamespace.details: (self, *contents: str) -&gt; str</code></td>
-<td>Wraps a string in HTML details tags (&lt;details&gt;&lt;/details&gt;). Multiple arguments get separated by two line breaks. <br/><pre><code class="language-py">&gt;&gt;&gt; from metadock.env import MetadockEnv<br />&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br />&gt;&gt;&gt; env.from_string(&quot;{{ html.details('This is details text.') }}&quot;).render()<br />'&lt;details&gt;\nThis is details text.\n&lt;/details&gt;'<br /></code></pre><br /></td>
+<td>Wraps a string in line-broken HTML details tags (&lt;details&gt;&lt;/details&gt;). Multiple arguments get separated by two line breaks. <br/><pre><code class="language-py">&gt;&gt;&gt; from metadock.env import MetadockEnv<br />&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br />&gt;&gt;&gt; env.from_string(&quot;{{ html.details('This is details text.') }}&quot;).render()<br />'&lt;details&gt;\nThis is details text.\n&lt;/details&gt;'<br /></code></pre><br /></td>
 </tr>
 <tr>
 <td><code>html.italic</code></td>
 <td><code>metadock.env.MetadockHtmlNamespace.italic: (self, content: str) -&gt; str</code></td>
 <td>Wraps a string in HTML italic tags (&lt;i&gt;&lt;/i&gt;). <br/><pre><code class="language-py">&gt;&gt;&gt; from metadock.env import MetadockEnv<br />&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br />&gt;&gt;&gt; env.from_string(&quot;{{ html.italic('This is italic text.') }}&quot;).render()<br />'&lt;i&gt;This is italic text.&lt;/i&gt;'<br /></code></pre><br /></td>
+</tr>
+<tr>
+<td><code>html.summary</code></td>
+<td><code>metadock.env.MetadockHtmlNamespace.summary: (self, content: str) -&gt; str</code></td>
+<td>Wraps a string in line-broken HTML summary tags (&lt;summary&gt;\n\n&lt;/summary&gt;). <br/><pre><code class="language-py">&gt;&gt;&gt; from metadock.env import MetadockEnv<br />&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br />&gt;&gt;&gt; env.from_string(&quot;{{ html.summary('This is summary text.') }}&quot;).render()<br />'&lt;summary&gt;\nThis is summary text.\n&lt;/summary&gt;'<br /></code></pre><br /></td>
 </tr>
 </tbody></table></details>
 <details>

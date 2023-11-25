@@ -51,8 +51,8 @@ html:
 
     details:
       docstring: |
-        Wraps a string in HTML details tags (<details></details>). Multiple arguments get separated by two line
-        breaks.
+        Wraps a string in line-broken HTML details tags (<details></details>). Multiple arguments get separated by two 
+        line breaks.
       example: |
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
@@ -84,9 +84,16 @@ html:
 
     summary:
       docstring: |
-        Wraps a string in HTML summary tags (<summary></summary>).
+        Wraps a string in line-broken HTML summary tags (<summary>\n\n</summary>).
       example: |
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.summary('This is summary text.') }}").render()
-        '<summary>This is summary text.</summary>'
+        '<summary>\nThis is summary text.\n</summary>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.summary
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML summary
+        snippet_body:
+          - html.summary($1)

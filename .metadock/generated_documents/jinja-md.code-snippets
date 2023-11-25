@@ -100,4 +100,13 @@
         "description": "HTML italic macro"
     },
     
+    "(macro) HTML summary": {
+        "scope": "jinja-md,md",
+        "prefix": "html.summary",
+        "body": [
+            "html.summary($1)"
+        ],
+        "description": "HTML summary macro"
+    },
+    
 }
