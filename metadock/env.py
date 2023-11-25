@@ -316,7 +316,7 @@ class MetadockHtmlNamespace(MetadockNamespace):
         Returns:
             str: The HTML-inlined string.
         """
-        return content.replace("\n", "<br/><br/>")
+        return content.replace("\n", "<br/>")
 
 
 class MetadockEnv(MetadockNamespace):
