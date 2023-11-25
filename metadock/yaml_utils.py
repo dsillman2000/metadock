@@ -17,6 +17,9 @@ def flatten_merge_keys(yaml_dict: Any) -> dict:
     Returns:
         dict: Flattened representation of the nested dictionary object
     """
+    if isinstance(yaml_dict, list):
+        return [flatten_merge_keys(el) for el in yaml_dict]
+
     if not isinstance(yaml_dict, dict):
         return yaml_dict  # type: ignore
 

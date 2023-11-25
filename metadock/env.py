@@ -1,4 +1,5 @@
 import abc
+import html
 import itertools
 from typing import Annotated, Any, Iterable, Literal, Sequence
 
@@ -129,7 +130,8 @@ class MetadockMdNamespace(MetadockNamespace):
         Returns:
             str: The Markdown table row.
         """
-        return "| " + " | ".join(cells) + " |"
+        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), cells))
+        return "| " + " | ".join(_pipe_escaped_cells) + " |"
 
     def tablehead(self, *header_cells: str, bold: bool = False) -> str:
         """Produces a Markdown table header row from the given header cells.
@@ -141,9 +143,10 @@ class MetadockMdNamespace(MetadockNamespace):
         Returns:
             str: The Markdown table header row.
         """
+        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), header_cells))
         if bold:
-            header_cells = tuple(MetadockHtmlNamespace().bold(cell) for cell in header_cells)
-        return self.tablerow(*header_cells) + "\n" + self.tablerow(*(["---"] * len(header_cells)))
+            _pipe_escaped_cells = tuple(MetadockHtmlNamespace().bold(cell) for cell in _pipe_escaped_cells)
+        return self.tablerow(*_pipe_escaped_cells) + "\n" + self.tablerow(*(["---"] * len(_pipe_escaped_cells)))
 
     def list(self, *items: str) -> str:
         """Produces a Markdown list from the given items, even when those items themselves may be formatted as Markdown
@@ -208,6 +211,7 @@ class MetadockHtmlNamespace(MetadockNamespace):
     """
 
     exports = ["bold", "code", "codeblock", "details", "italic", "summary", "underline"]
+    filters = ["escape", "inline"]
 
     def bold(self, content: str) -> str:
         """Wraps a string in HTML bold tags (<b></b>).
@@ -232,8 +236,8 @@ class MetadockHtmlNamespace(MetadockNamespace):
         return f"<code>{content}</code>"
 
     def codeblock(self, content: str, indent: int = 0) -> str:
-        """Wraps a string in line-broken HTML code tags (<code>\\n\\n</code>), and indents the content by the given
-        amount.
+        """Wraps a string in preformatted HTML code tags (<pre><code></code></pre>), and indents the content by the
+        given amount.
 
         Args:
             content (str): The content to be formatted as code.
@@ -242,21 +246,21 @@ class MetadockHtmlNamespace(MetadockNamespace):
         Returns:
             str: The HTML code block content.
         """
-        indented_content = content.replace("\n", "\n" + " " * indent)
-        return f"<code>\n{indented_content}\n</code>"
+        indented_content = " " * indent + content.replace("\n", "\n" + " " * indent)
+        return f"<pre><code>{indented_content}</code></pre>"
 
-    def details(self, *contents: str, indent: int = 0) -> str:
-        """Wraps a string in HTML details tags (<details></details>), and indents the content by the given amount.
+    def details(self, *contents: str) -> str:
+        """Wraps a string in HTML details tags (<details></details>). Multiple arguments get separated by two line
+        breaks.
 
         Args:
             *contents (str): The content to be wrapped in details tags. Multiple arguments get separated by two line
                 breaks.
-            indent (int, optional): Number of spaces which should be used to indent the contents. Defaults to 0.
 
         Returns:
             str: The HTML details content.
         """
-        indented_linesep_contents = "\n\n".join(contents).replace("\n", "\n" + " " * indent)
+        indented_linesep_contents = "\n\n".join(contents).replace("\n", "\n")
         return f"<details>\n{indented_linesep_contents}\n</details>"
 
     def italic(self, content: str) -> str:
@@ -270,18 +274,16 @@ class MetadockHtmlNamespace(MetadockNamespace):
         """
         return f"<i>{content}</i>"
 
-    def summary(self, content: str, indent: int = 0) -> str:
-        """Wraps a string in HTML summary tags (<summary></summary>), and indents the content by the given amount.
+    def summary(self, content: str) -> str:
+        """Wraps a string in HTML summary tags (<summary></summary>).
 
         Args:
             content (str): The content to be wrapped in summary tags.
-            indent (int, optional): Number of spaces to use when indenting the content. Defaults to 0.
 
         Returns:
             str: The HTML summary content.
         """
-        indented_content = content.replace("\n", "\n" + " " * indent)
-        return f"<summary>\n{indented_content}\n</summary>"
+        return f"<summary>\n{content}\n</summary>"
 
     def underline(self, content: str) -> str:
         """Wraps a string in HTML underline tags (<u></u>).
@@ -293,6 +295,28 @@ class MetadockHtmlNamespace(MetadockNamespace):
             str: The HTML underline content.
         """
         return f"<u>{content}</u>"
+
+    def escape_filter(self, content: str) -> str:
+        """Filter which escapes a string by replacing all HTML special characters with their HTML entity equivalents.
+
+        Args:
+            content (str): Piped input string to be HTML-escaped.
+
+        Returns:
+            str: The escaped string.
+        """
+        return html.escape(content)
+
+    def inline_filter(self, content: str) -> str:
+        """Filter which inlines a string by replacing all newlines with HTML line-break <br /> singleton tags.
+
+        Args:
+            content (str): Piped input string to be HTML-inlined.
+
+        Returns:
+            str: The HTML-inlined string.
+        """
+        return content.replace("\n", "<br />")
 
 
 class MetadockEnv(MetadockNamespace):

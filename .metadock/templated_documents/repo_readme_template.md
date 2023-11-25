@@ -88,6 +88,54 @@ The natively supported values for `target_formats` are:
   - Generates the given template as plaintext, and adds the given string as a file extension, e.g. 
   `.txt`, `.sql` or `.py`.
 
+## Jinja Templating Helpers
+
+In the Jinja templating context which is loaded for each templated document, there are a handful of helpful Jinja macros
+and filters which can be used to make formatting content easier. The macros and filters are segregated into 
+{{ jinja_helpers.keys() | length }} namespaces, documented below:
+
+{% for namespace, namespace_spec in jinja_helpers.items() -%}
+{%- set namespace_title_prefix = "Global" if namespace == "global" else md.code(namespace) -%}
+{%- set ns_code_prefix = (namespace ~ ".") if namespace != "global" else "" -%}
+{%- set namespace_intro -%}
+### {{ namespace_title_prefix }} namespace
+
+{{ namespace_spec.get("info") }}
+{% endset -%}
+{%- set ns_macro_table -%}
+{{ md.tablehead("Macro", "Signature", "Doc", bold=true) }}
+{% for macro, macro_spec in namespace_spec.get("macros", {}).items() -%}
+{{
+    md.tablerow(
+        html.code(ns_code_prefix ~ macro), 
+        html.code(macro_spec.get("method_name") ~ ": " ~ macro_spec.get("signature")),
+        (macro_spec.get("docstring") | inline | html.escape) ~ "<br/>" ~ (md.codeblock(macro_spec.get("example"), language="py") 
+        | md.convert | html.inline),
+    )
+}}
+{% endfor -%}
+{%- endset -%}
+{%- set ns_filter_table -%}
+{{ md.tablehead("Filter", "Signature", "Doc", bold=true) }}
+{% for filter, filter_spec in namespace_spec.get("filters", {}).items() -%}
+{{
+    md.tablerow(
+        html.code(ns_code_prefix ~ filter), 
+        html.code(filter_spec.get("method_name") ~ ": " ~ filter_spec.get("signature")),
+        (filter_spec.get("docstring") | inline | html.escape) ~ "<br/>" ~ (md.codeblock(filter_spec.get("example"), language="py") 
+        | md.convert | html.inline),
+    )
+}}
+{% endfor -%}
+{%- endset -%}
+{{ namespace_intro }}
+
+{{ html.details(html.summary("Jinja macro reference"), ns_macro_table) }}
+
+{{ html.details(html.summary("Jinja filter reference"), ns_filter_table) }}
+
+{% endfor %}
+
 ## Acknowledgements
 
 Author{% if (authors | length) > 1 %}s{% endif %}:

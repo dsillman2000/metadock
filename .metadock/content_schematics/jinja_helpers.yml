@@ -4,5 +4,7 @@ jinja_helpers:
     # Import global macros, filters context
     - import: jinja_helpers/global.yml
     # TODO: import markdown macros, filters context
+    - import: jinja_helpers/md.yml
     # TODO: import html macros, filters context
+    - import: jinja_helpers/html.yml
     

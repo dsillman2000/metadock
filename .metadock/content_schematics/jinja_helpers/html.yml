@@ -1,0 +1,92 @@
+html:
+  macros:
+    bold:
+      docstring: |
+        Wraps a string in HTML bold tags (<b></b>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.bold('This is bold text.') }}").render()
+        '<b>This is bold text.</b>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.bold
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML bold
+        snippet_body:
+          - html.bold($1)
+
+    code:
+      docstring: |
+        Wraps a string in HTML code tags (<code></code>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.code('This is code text.') }}").render()
+        '<code>This is code text.</code>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.code
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML code
+        snippet_body:
+          - html.code($1)
+
+    codeblock:
+      docstring: |
+        Wraps a string in preformatted HTML code tags (<pre><code></code></pre>), and indents the content by the
+        given amount.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.codeblock('This is code text.', indent = 4) }}").render()
+        '<pre><code>    This is code text.</code></pre>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.codeblock
+      signature: "(self, content: str, indent: int = 0) -> str"
+      intellisense:
+        snippet_key: HTML codeblock
+        snippet_body:
+          - html.codeblock($1)
+
+    details:
+      docstring: |
+        Wraps a string in HTML details tags (<details></details>). Multiple arguments get separated by two line
+        breaks.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.details('This is details text.') }}").render()
+        '<details>\nThis is details text.\n</details>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.details
+      signature: "(self, *contents: str) -> str"
+      intellisense:
+        snippet_key: HTML details
+        snippet_body:
+          - html.details($1)
+
+    italic:
+      docstring: |
+        Wraps a string in HTML italic tags (<i></i>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.italic('This is italic text.') }}").render()
+        '<i>This is italic text.</i>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.italic
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML italic
+        snippet_body:
+          - html.italic($1)
+
+    summary:
+      docstring: |
+        Wraps a string in HTML summary tags (<summary></summary>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.summary('This is summary text.') }}").render()
+        '<summary>This is summary text.</summary>'

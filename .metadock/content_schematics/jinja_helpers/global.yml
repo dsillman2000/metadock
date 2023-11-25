@@ -1,7 +1,10 @@
 global:
+  info: |
+    The global namespace contains helpful macros and filters for manipulating data in the Jinja
+    context. It also provides access to more specific namespaces through their respective identifiers,
+    such as `md` and `html`.
 
   macros:
-
     debug:
       docstring: Prints a debug message to stdout, and returns an empty string.
       example: |
@@ -15,11 +18,10 @@ global:
       signature: "(self, message: str) -> None"
       intellisense:
         snippet_key: Debug message
-        snippet_body: 
+        snippet_body:
           - debug($1)
 
   filters:
-  
     chain:
       docstring: |
         Filter which flattens a sequence of iterables into a single iterable.
@@ -33,7 +35,7 @@ global:
       signature: "(self, iterables: Sequence[Iterable[Any]]) -> Iterable[Any]"
       intellisense:
         snippet_key: Chain iterables
-        snippet_body: 
+        snippet_body:
           - chain
 
     inline:
@@ -49,7 +51,7 @@ global:
       signature: "(self, value: str) -> str"
       intellisense:
         snippet_key: Inline text
-        snippet_body: 
+        snippet_body:
           - inline
 
     with_prefix:
@@ -67,7 +69,7 @@ global:
       signature: "(self, value: str, prefix: str, sep: str = '') -> str"
       intellisense:
         snippet_key: With prefix
-        snippet_body: 
+        snippet_body:
           - with_prefix($1)
 
     with_suffix:
@@ -85,7 +87,7 @@ global:
       signature: "(self, value: str, suffix: str, sep: str = '') -> str"
       intellisense:
         snippet_key: With suffix
-        snippet_body: 
+        snippet_body:
           - with_suffix($1)
 
     zip:
@@ -101,5 +103,5 @@ global:
       signature: "(self, input_iterable: Iterable[Any], *iterables: Iterable[Any]) -> Iterable[tuple[Any, ...]]"
       intellisense:
         snippet_key: Zip iterables
-        snippet_body: 
+        snippet_body:
           - zip($1)
