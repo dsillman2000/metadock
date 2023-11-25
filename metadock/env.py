@@ -332,7 +332,7 @@ class MetadockHtmlNamespace(MetadockNamespace):
 
 
 class MetadockEnv(MetadockNamespace):
-    """Jinja namespace for the global Metadock environment, including all global exports, filters, and namespaces.
+    """Jinja namespace for the global Metadock environment, including all global macros, filters, and namespaces.
 
     **Macros**:
 

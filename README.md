@@ -277,7 +277,7 @@ and filters which can be used to make formatting content easier. The macros and 
 
 ### Global namespace
 
-Jinja namespace for the global Metadock environment, including all global exports, filters, and namespaces.
+Jinja namespace for the global Metadock environment, including all global macros, filters, and namespaces.
 
 **Macros**:
 
