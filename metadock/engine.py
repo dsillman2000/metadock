@@ -483,12 +483,17 @@ class MetadockContentSchematic(pydantic.BaseModel):
                     raise exceptions.MetadockContentSchematicParsingException(
                         "Missing required key for content schematic in %s: '%s'" % (yaml_path, req_key)
                     )
+
+            context = yaml_utils.flatten_merge_keys(def_schematic.get("context", {}))
+            context = yaml_utils.resolve_all_imports(
+                Path(str(yaml_path).split("/content_schematics/")[0]) / "content_schematics", context
+            )
             content_schematics.append(
                 cls(
                     name=def_schematic["name"],
                     template=def_schematic["template"],
                     target_formats=def_schematic["target_formats"],
-                    context=yaml_utils.flatten_merge_keys(def_schematic.get("context", {})),
+                    context=context,
                 )
             )
 

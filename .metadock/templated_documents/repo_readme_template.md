@@ -18,7 +18,8 @@ The root of your project is expected to have a `.metadock` folder, which can be 
 
 ## Basic CLI Usage
 
-The `metadock` CLI, installed using `pip install metadock`, has {{ cli.get("commands") | length }} basic commands, spelled out in the help message:
+The `metadock` CLI, installed using `pip install metadock`, has {{ cli.get("commands") | length }} basic commands, 
+spelled out in the help message:
 
 {{ md.codeblock(cli.get("usage_string"), language="sh") }}
 
@@ -50,7 +51,6 @@ In the example above, we can imagine the content of our template, `gitlab_mr_tem
 This is a very simple MR format which can easily be generalized to allow for quickly generating large sets of docs which
 meet the same format and style requirements. An example *content schematic* which could service this template could
 be in `gitlab_mr__feature1.yml`:
-
 {{
     md.codeblock(
         example_project.get("content_schematics").get("gitlab_mr__feature1.yml"),
@@ -63,8 +63,8 @@ called `generated_documents/gitlab_mr__feature1.md`:
 
 {{ md.blockquote(example_project.get("generated_documents").get("gitlab_mr__feature1.md")) }}
 
-Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for free,
-located at `generated_documents/gitlab_mr__feature_1.html`:
+Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for 
+free, located at `generated_documents/gitlab_mr__feature_1.html`:
 
 {{
     md.codeblock(
@@ -84,16 +84,12 @@ The natively supported values for `target_formats` are:
 {% for target_format, data in target_formats.items() %}
 {{ md.list(md.code(target_format) ~ ":", md.list(data.get("description"))) }}
 {% endfor -%}
-{{ 
-    md.list(
-        "Anything else, e.g. `txt`, `sql` or `py`", 
-        "Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
-        `.py`."
-    ) 
-}}
+- Anything else, e.g. `txt`, `sql` or `py`:
+  - Generates the given template as plaintext, and adds the given string as a file extension, e.g. 
+  `.txt`, `.sql` or `.py`.
 
 ## Acknowledgements
 
 Author{% if (authors | length) > 1 %}s{% endif %}:
 
-{{ md.list(*authors) }}
+{{ authors | md.list }}

@@ -34,7 +34,8 @@ The root of your project is expected to have a `.metadock` folder, which can be 
 
 ## Basic CLI Usage
 
-The `metadock` CLI, installed using `pip install metadock`, has 5 basic commands, spelled out in the help message:
+The `metadock` CLI, installed using `pip install metadock`, has 5 basic commands, 
+spelled out in the help message:
 
 ```sh
 usage: metadock [-h] [-p PROJECT_DIR] {init,validate,build,list,clean} ...
@@ -120,7 +121,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.list</code></li>
-<li>Signature: <code>(list[str], list[str]) -&gt;  metadock.engine.MetadockProjectListResult</code></li>
+<li>Signature: <code>(list[str], list[str]) -&gt;  list[str]</code></li>
 </ul>
 </li>
 </ul>
@@ -179,7 +180,6 @@ For more information, please check out the Jira ticket associated with this MR, 
 This is a very simple MR format which can easily be generalized to allow for quickly generating large sets of docs which
 meet the same format and style requirements. An example *content schematic* which could service this template could
 be in `gitlab_mr__feature1.yml`:
-
 ```yml
 #...
 # yaml anchor definitions
@@ -232,8 +232,8 @@ called `generated_documents/gitlab_mr__feature1.md`:
 > 
 > For more information, please check out the Jira ticket associated with this MR, IGDP-13.
 
-Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for free,
-located at `generated_documents/gitlab_mr__feature_1.html`:
+Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for 
+free, located at `generated_documents/gitlab_mr__feature_1.html`:
 
 ```html
 <h1>[IGDP-13] Adding software version as hard requirement for staging</h1>
@@ -266,9 +266,9 @@ The natively supported values for `target_formats` are:
 
 - `md+html`:
   - Generates the given template, parses it into a markdown document, and then generates HTML from it.
-- Anything else, e.g. `txt`, `sql` or `py`
-- Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
-        `.py`.
+- Anything else, e.g. `txt`, `sql` or `py`:
+  - Generates the given template as plaintext, and adds the given string as a file extension, e.g. 
+  `.txt`, `.sql` or `.py`.
 
 ## Acknowledgements
 

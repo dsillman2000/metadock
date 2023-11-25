@@ -11,6 +11,17 @@ def metadock_project(empty_metadock_project_dir):
     # Create some dummy files within the directories
     (project_dir / "templated_documents" / "template1.md").write_text("Simple plaintext document.")
     (project_dir / "templated_documents" / "template2.md").write_text("{{ var1 }} is {{ var2 }}.")
+    (project_dir / "templated_documents" / "imported.md").write_text(
+        """**Imported identity**: {{ name }} ({{ sem_version }})"""
+    )
+    (project_dir / "content_schematics" / "lib.yml").write_text(
+        """
+        identity:
+          name: lib
+          sem_version: 3.0.1
+          fix_version: 2023.04.11
+        """
+    )
     (project_dir / "content_schematics" / "schematic1.yml").write_text(
         """
         content_schematics:
@@ -45,6 +56,16 @@ def metadock_project(empty_metadock_project_dir):
               var2: a test
         """
     )
+    (project_dir / "content_schematics" / "imported.yml").write_text(
+        """
+        content_schematics:
+
+          - name: schematic_import
+            template: imported.md
+            target_formats: [ md ]
+            context: { import: lib.yml, key: identity }
+        """
+    )
 
     return MetadockProject(project_dir)
 
@@ -54,7 +75,7 @@ def test_metadock_project_templated_documents_directory(metadock_project):
 
 
 def test_metadock_project_templated_documents(metadock_project):
-    assert len(metadock_project.templated_documents) == 2
+    assert len(metadock_project.templated_documents) == 3
 
 
 def test_metadock_project_content_schematics_directory(metadock_project):
@@ -62,7 +83,7 @@ def test_metadock_project_content_schematics_directory(metadock_project):
 
 
 def test_metadock_project_content_schematics(metadock_project):
-    assert len(metadock_project.content_schematics) == 4
+    assert len(metadock_project.content_schematics) == 5
 
 
 def test_metadock_project_generated_documents_directory(metadock_project):
@@ -73,8 +94,8 @@ def test_metadock_project_build(metadock_project):
     # Test building all schematics
 
     build_result = metadock_project.build()
-    assert len(list(metadock_project.generated_documents_directory.glob("*"))) == 4
-    assert len(build_result.generated_documents) == 4
+    assert len(list(metadock_project.generated_documents_directory.glob("*"))) == 5
+    assert len(build_result.generated_documents) == 5
     assert all(gd.status == "new" for gd in build_result.generated_documents)
 
     metadock_project.clean()
@@ -149,3 +170,19 @@ def test_metadock_content_schematic(metadock_project):
 
     assert content_schem_2a.to_compiled_targets(metadock_project) == {"md": " is ."}
     assert content_schem_2b.to_compiled_targets(metadock_project) == {"md": "This is a test."}
+
+
+def test_metadock_content_schematic__import_key(metadock_project):
+    content_schem_imported = metadock_project.content_schematics["schematic_import"]
+    assert content_schem_imported.context
+    assert content_schem_imported.context == {
+        "name": "lib",
+        "sem_version": "3.0.1",
+        "fix_version": "2023.04.11",
+    }
+
+    metadock_project.build(["schematic_import"])
+
+    gen_doc = metadock_project.generated_documents_directory / "schematic_import.md"
+    assert gen_doc.exists()
+    assert gen_doc.read_text() == "**Imported identity**: lib (3.0.1)"

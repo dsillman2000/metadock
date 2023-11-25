@@ -1,0 +1,26 @@
+python_interfaces:
+
+  init:
+    source_file: metadock/__init__.py
+    method_name: metadock.Metadock.init
+    signature: (Path | str) -> metadock.Metadock
+
+  validate:
+    source_file: metadock/__init__.py
+    method_name: metadock.Metadock.validate
+    signature: () -> metadock.engine.MetadockProjectValidationResult
+
+  build:
+    source_file: metadock/__init__.py
+    method_name: metadock.Metadock.build
+    signature: (list[str], list[str]) ->  metadock.engine.MetadockProjectBuildResult
+
+  list:
+    source_file: metadock/__init__.py
+    method_name: metadock.Metadock.list
+    signature: (list[str], list[str]) ->  list[str]
+
+  clean:
+    source_file: metadock/__init__.py
+    method_name: metadock.Metadock.clean
+    signature: () -> None
