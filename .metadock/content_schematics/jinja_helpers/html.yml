@@ -50,22 +50,22 @@ html:
         snippet_body:
           - html.code($1)
 
-    codeblock:
+    pre:
       docstring: |
-        Wraps a string in preformatted HTML code tags (<pre><code></code></pre>), and indents the content by the
+        Wraps a string in preformatted HTML pre tags (<pre></pre>), and indents the content by the
         given amount.
       example: |
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
-        >>> env.from_string("{{ html.codeblock('This is code text.', indent = 4) }}").render()
-        '<pre><code>    This is code text.</code></pre>'
+        >>> env.from_string("{{ html.pre('This is code text.', indent = 4) }}").render()
+        '<pre>    This is code text.</pre>'
       source_file: metadock/env.py
-      method_name: metadock.env.MetadockHtmlNamespace.codeblock
+      method_name: metadock.env.MetadockHtmlNamespace.pre
       signature: "(self, content: str, indent: int = 0) -> str"
       intellisense:
-        snippet_key: HTML codeblock
+        snippet_key: HTML pre
         snippet_body:
-          - html.codeblock($1)
+          - html.pre($1)
 
     details:
       docstring: |

@@ -210,9 +210,9 @@ class MetadockHtmlNamespace(MetadockNamespace):
 
         bold
         code
-        codeblock
         details
         italic
+        pre
         summary
         underline
 
@@ -222,7 +222,7 @@ class MetadockHtmlNamespace(MetadockNamespace):
         inline
     """
 
-    exports = ["bold", "code", "codeblock", "details", "italic", "summary", "underline"]
+    exports = ["bold", "code", "details", "italic", "pre", "summary", "underline"]
     filters = ["escape", "inline"]
 
     def bold(self, content: str) -> str:
@@ -246,20 +246,6 @@ class MetadockHtmlNamespace(MetadockNamespace):
             str: The HTML code content.
         """
         return f"<code>{content}</code>"
-
-    def codeblock(self, content: str, indent: int = 0) -> str:
-        """Wraps a string in preformatted HTML code tags (<pre><code></code></pre>), and indents the content by the
-        given amount.
-
-        Args:
-            content (str): The content to be formatted as code.
-            indent (int, optional): Number of spaces which should be used to indent the contents. Defaults to 0.
-
-        Returns:
-            str: The HTML code block content.
-        """
-        indented_content = " " * indent + content.replace("\n", "\n" + " " * indent)
-        return f"<pre><code>{indented_content}</code></pre>"
 
     def details(self, *contents: str) -> str:
         """Wraps a string in HTML details tags (<details></details>). Multiple arguments get separated by two line
@@ -285,6 +271,20 @@ class MetadockHtmlNamespace(MetadockNamespace):
             str: The HTML italic content.
         """
         return f"<i>{content}</i>"
+
+    def pre(self, content: str, indent: int = 0) -> str:
+        """Wraps a string in preformatted HTML pre tags (<pre></pre>), and indents the content by the
+        given amount.
+
+        Args:
+            content (str): The content to be formatted as pre-formatted code.
+            indent (int, optional): Number of spaces which should be used to indent the contents. Defaults to 0.
+
+        Returns:
+            str: The HTML code block content.
+        """
+        indented_content = " " * indent + content.replace("\n", "\n" + " " * indent)
+        return f"<pre>{indented_content}</pre>"
 
     def summary(self, content: str) -> str:
         """Wraps a string in HTML summary tags (<summary></summary>).

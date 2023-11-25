@@ -109,8 +109,8 @@ and filters which can be used to make formatting content easier. The macros and 
     md.tablerow(
         html.code(ns_code_prefix ~ macro), 
         html.code(macro_spec.get("method_name") ~ ": " ~ macro_spec.get("signature")),
-        (macro_spec.get("docstring") | inline | html.escape) ~ "<br/><br/>" ~ (md.codeblock(macro_spec.get("example")) 
-        | md.convert | html.inline),
+        (macro_spec.get("docstring") | inline | html.escape) ~ "<br/><br/>" ~ (html.pre(macro_spec.get("example")) 
+        | html.inline),
     )
 }}
 {% endfor -%}
@@ -122,17 +122,17 @@ and filters which can be used to make formatting content easier. The macros and 
     md.tablerow(
         html.code(ns_code_prefix ~ filter), 
         html.code(filter_spec.get("method_name") ~ ": " ~ filter_spec.get("signature")),
-        (filter_spec.get("docstring") | inline | html.escape) ~ "<br/><br/>" ~ (md.codeblock(filter_spec.get("example")) 
-        | md.convert | html.inline),
+        (filter_spec.get("docstring") | inline | html.escape) ~ "<br/><br/>" ~ (html.pre(filter_spec.get("example")) 
+        | html.inline),
     )
 }}
 {% endfor -%}
 {%- endset -%}
 {{ namespace_intro }}
 
-{{ html.details(html.summary("Jinja macro reference"), ns_macro_table | md.convert) }}
+{{ html.details(html.summary("Jinja macro reference"), ns_macro_table) }}
 
-{{ html.details(html.summary("Jinja filter reference"), ns_filter_table | md.convert) }}
+{{ html.details(html.summary("Jinja filter reference"), ns_filter_table) }}
 
 {% endfor %}
 
