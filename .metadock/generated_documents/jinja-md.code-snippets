@@ -53,6 +53,76 @@
     
     // Metadock snippets for macros and filters in md namespace
     
+    "(macro) Markdown blockquote": {
+        "scope": "jinja-md,md",
+        "prefix": "md.blockquote",
+        "body": [
+            "md.blockquote($1)"
+        ],
+        "description": "Markdown blockquote macro"
+    },
+    
+    "(macro) Markdown inline code": {
+        "scope": "jinja-md,md",
+        "prefix": "md.code",
+        "body": [
+            "md.code($1)"
+        ],
+        "description": "Markdown inline code macro"
+    },
+    
+    "(macro) Markdown codeblock": {
+        "scope": "jinja-md,md",
+        "prefix": "md.codeblock",
+        "body": [
+            "md.codeblock($1)"
+        ],
+        "description": "Markdown codeblock macro"
+    },
+    
+    "(macro) Markdown list": {
+        "scope": "jinja-md,md",
+        "prefix": "md.list",
+        "body": [
+            "md.list($1)"
+        ],
+        "description": "Markdown list macro"
+    },
+    
+    "(macro) Markdown table head": {
+        "scope": "jinja-md,md",
+        "prefix": "md.tablehead",
+        "body": [
+            "md.tablehead($1)"
+        ],
+        "description": "Markdown table head macro"
+    },
+    
+    "(macro) Markdown table row": {
+        "scope": "jinja-md,md",
+        "prefix": "md.tablerow",
+        "body": [
+            "md.tablerow($1)"
+        ],
+        "description": "Markdown table row macro"
+    },
+    "(filter) Markdown convert": {
+        "scope": "jinja-md,md",
+        "prefix": "md.convert",
+        "body": [
+            "md.convert($1)"
+        ],
+        "description": "Markdown convert filter"
+    },
+    "(filter) Markdown list": {
+        "scope": "jinja-md,md",
+        "prefix": "md.list",
+        "body": [
+            "md.list"
+        ],
+        "description": "Markdown list filter"
+    },
+    
     // Metadock snippets for macros and filters in html namespace
     
     "(macro) HTML bold": {
@@ -107,6 +177,31 @@
             "html.summary($1)"
         ],
         "description": "HTML summary macro"
+    },
+    
+    "(macro) HTML underline": {
+        "scope": "jinja-md,md",
+        "prefix": "html.underline",
+        "body": [
+            "html.underline($1)"
+        ],
+        "description": "HTML underline macro"
+    },
+    "(filter) HTML escape": {
+        "scope": "jinja-md,md",
+        "prefix": "html.escape",
+        "body": [
+            "html.escape"
+        ],
+        "description": "HTML escape filter"
+    },
+    "(filter) HTML inline": {
+        "scope": "jinja-md,md",
+        "prefix": "html.inline",
+        "body": [
+            "html.inline"
+        ],
+        "description": "HTML inline filter"
     },
     
 }

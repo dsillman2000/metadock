@@ -70,7 +70,8 @@ class MetadockNamespace(abc.ABC):
 class MetadockMdNamespace(MetadockNamespace):
     """Jinja Namespace for Markdown-related functions and filters.
 
-    Exports:
+    **Macros**:
+
         blockquote
         code
         codeblock
@@ -78,7 +79,8 @@ class MetadockMdNamespace(MetadockNamespace):
         tablehead
         tablerow
 
-    Filters:
+    **Filters**:
+
         convert
         list
     """
@@ -87,7 +89,7 @@ class MetadockMdNamespace(MetadockNamespace):
     filters = ["convert", "list"]
 
     def blockquote(self, content: str) -> str:
-        """Produces a Markdown blockquote from the given content.
+        """Produces a Markdown blockquote from the given content by prepending each line with a gt symbol ("> ").
 
         Args:
             content (str): The content of the blockquote.
@@ -98,8 +100,20 @@ class MetadockMdNamespace(MetadockNamespace):
         _blockquoted = content.strip().replace("\n", "\n> ")
         return f"> {_blockquoted}"
 
+    def code(self, content: str) -> str:
+        """Produces a Markdown inline code block from the given content by wrapping the string in graves ("`").
+
+        Args:
+            content (str): The content of the inline code block.
+
+        Returns:
+            str: The Markdown inline code block.
+        """
+        return f"`{content.strip()}`"
+
     def codeblock(self, content: str, language: str = "") -> str:
-        """Produces a Markdown codeblock from the given content.
+        """Produces a Markdown codeblock from the given content by wrapping the string in triple-graves ("```"),
+        and optionally specifies a language.
 
         Args:
             content (str): The content of the codeblock.
@@ -110,47 +124,9 @@ class MetadockMdNamespace(MetadockNamespace):
         """
         return f"```{language}\n{content.strip()}\n```"
 
-    def code(self, content: str) -> str:
-        """Produces a Markdown inline code block from the given content.
-
-        Args:
-            content (str): The content of the inline code block.
-
-        Returns:
-            str: The Markdown inline code block.
-        """
-        return f"`{content.strip()}`"
-
-    def tablerow(self, *cells: str) -> str:
-        """Produces a Markdown table row from the given cells.
-
-        Args:
-            *cells (str): The cells of the table row.
-
-        Returns:
-            str: The Markdown table row.
-        """
-        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), cells))
-        return "| " + " | ".join(_pipe_escaped_cells) + " |"
-
-    def tablehead(self, *header_cells: str, bold: bool = False) -> str:
-        """Produces a Markdown table header row from the given header cells.
-
-        Args:
-            *header_cells (str): The header cells of the table header row.
-            bold (bool, optional): Whether or not to bold the header's contents. Defaults to False.
-
-        Returns:
-            str: The Markdown table header row.
-        """
-        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), header_cells))
-        if bold:
-            _pipe_escaped_cells = tuple(MetadockHtmlNamespace().bold(cell) for cell in _pipe_escaped_cells)
-        return self.tablerow(*_pipe_escaped_cells) + "\n" + self.tablerow(*(["---"] * len(_pipe_escaped_cells)))
-
     def list(self, *items: str) -> str:
-        """Produces a Markdown list from the given items, even when those items themselves may be formatted as Markdown
-        lists.
+        """Produces a Markdown list from the given content by prepending each line with a dash ("- "). If any of its
+        arguments are, themselves, formatted as Markdown lists, then they are simply indented as sublists.
 
         Args:
             *items (str): The individual items and/or sub-lists which compose the list.
@@ -170,6 +146,36 @@ class MetadockMdNamespace(MetadockNamespace):
             (f"- {flat_item}" if not _is_md_list(flat_item) else f"  {indented_item}")
             for flat_item, indented_item in zip(flat_items, indented_items)
         )
+
+    def tablerow(self, *cells: str) -> str:
+        """Produces a Markdown table row from the given cells by joining each cell with pipes ("|") and wrapping the
+        result in pipes. Cell contents have their pipes escaped with a backslash ("\\").
+
+        Args:
+            *cells (str): The cells of the table row.
+
+        Returns:
+            str: The Markdown table row.
+        """
+        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), cells))
+        return "| " + " | ".join(_pipe_escaped_cells) + " |"
+
+    def tablehead(self, *header_cells: str, bold: bool = False) -> str:
+        """Produces a Markdown table header from the given cells by joining each cell with pipes ("|") and wrapping the
+        result in pipes, plus adding a header divider row. Cell contents have their pipes escaped with a backslash
+        ("\\"). To bold the header cell contents, supply `bold = true`.
+
+        Args:
+            *header_cells (str): The header cells of the table header row.
+            bold (bool, optional): Whether or not to bold the header's contents. Defaults to False.
+
+        Returns:
+            str: The Markdown table header row.
+        """
+        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), header_cells))
+        if bold:
+            _pipe_escaped_cells = tuple(MetadockHtmlNamespace().bold(cell) for cell in _pipe_escaped_cells)
+        return self.tablerow(*_pipe_escaped_cells) + "\n" + self.tablerow(*(["---"] * len(_pipe_escaped_cells)))
 
     def convert_filter(self, md_content: str) -> str:
         """Filter which converts Markdown content to HTML, by invoking `marko.convert`.
@@ -200,7 +206,8 @@ class MetadockMdNamespace(MetadockNamespace):
 class MetadockHtmlNamespace(MetadockNamespace):
     """Jinja namespace which owns HTML-related functions and filters.
 
-    Exports:
+    **Macros**:
+
         bold
         code
         codeblock
@@ -208,6 +215,11 @@ class MetadockHtmlNamespace(MetadockNamespace):
         italic
         summary
         underline
+
+    **Filters**:
+
+        escape
+        inline
     """
 
     exports = ["bold", "code", "codeblock", "details", "italic", "summary", "underline"]
@@ -308,7 +320,7 @@ class MetadockHtmlNamespace(MetadockNamespace):
         return html.escape(content)
 
     def inline_filter(self, content: str) -> str:
-        """Filter which inlines a string by replacing all newlines with HTML line-break <br /> singleton tags.
+        """Filter which inlines a string by replacing all newlines with HTML line-break <br> singleton tags.
 
         Args:
             content (str): Piped input string to be HTML-inlined.
@@ -322,14 +334,17 @@ class MetadockHtmlNamespace(MetadockNamespace):
 class MetadockEnv(MetadockNamespace):
     """Jinja namespace for the global Metadock environment, including all global exports, filters, and namespaces.
 
-    Exports:
+    **Macros**:
+
         debug
 
-    Namespaces:
+    **Namespaces**:
+
         html
         md
 
-    Filters:
+    **Filters**:
+
         chain
         inline
         with_prefix

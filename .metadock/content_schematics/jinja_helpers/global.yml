@@ -1,8 +1,23 @@
 global:
-  info: |
-    The global namespace contains helpful macros and filters for manipulating data in the Jinja
-    context. It also provides access to more specific namespaces through their respective identifiers,
-    such as `md` and `html`.
+  docstring: |
+    Jinja namespace for the global Metadock environment, including all global exports, filters, and namespaces.
+
+    **Macros**:
+
+        debug
+
+    **Namespaces**:
+
+        html
+        md
+
+    **Filters**:
+
+        chain
+        inline
+        with_prefix
+        with_suffix
+        zip
 
   macros:
     debug:

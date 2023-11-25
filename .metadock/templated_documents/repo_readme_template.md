@@ -100,7 +100,7 @@ and filters which can be used to make formatting content easier. The macros and 
 {%- set namespace_intro -%}
 ### {{ namespace_title_prefix }} namespace
 
-{{ namespace_spec.get("info") }}
+{{ namespace_spec.get("docstring") }}
 {% endset -%}
 {%- set ns_macro_table -%}
 {{ md.tablehead("Macro", "Signature", "Doc", bold=true) }}

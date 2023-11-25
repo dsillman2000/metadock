@@ -8,13 +8,11 @@ poetry install
 echo "Metadock-building README.md..."
 poetry run metadock build -s README
 cp .metadock/generated_documents/README.md README.md
+git add README.md
 
 # metadock build Intellisense snippets
 
 echo "Metadock-building Intellisense snippets..."
 poetry run metadock build -s jinja-md
 cp .metadock/generated_documents/jinja-md.code-snippets .vscode/jinja-md.code-snippets
-
-# capture all changes
-
-git add -A
+git add .vscode/jinja-md.code-snippets

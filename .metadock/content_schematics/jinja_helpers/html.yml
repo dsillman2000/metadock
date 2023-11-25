@@ -1,4 +1,22 @@
 html:
+  docstring: |
+    Jinja namespace which owns HTML-related functions and filters.
+
+    **Macros**:
+
+        bold
+        code
+        codeblock
+        details
+        italic
+        summary
+        underline
+
+    **Filters**:
+
+        escape
+        inline
+
   macros:
     bold:
       docstring: |
@@ -97,3 +115,52 @@ html:
         snippet_key: HTML summary
         snippet_body:
           - html.summary($1)
+
+    underline:
+      docstring: |
+        Wraps a string in HTML underline tags (<u></u>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.underline('This is underlined text.') }}").render()
+        '<u>This is underlined text.</u>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.underline
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML underline
+        snippet_body:
+          - html.underline($1)
+
+  filters:
+    escape:
+      docstring: |
+        Filter which escapes a string by replacing all HTML special characters with their HTML entity equivalents.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ '<p>This is a paragraph.</p>' | html.escape }}").render()
+        '&lt;p&gt;This is a paragraph.&lt;/p&gt;'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.escape_filter
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML escape
+        snippet_body:
+          - html.escape
+
+    inline:
+      docstring: |
+        Filter which inlines a string by replacing all newlines with HTML line-breaks <br> singleton tags.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' | html.inline }}").render()
+        'This is a multi-line string.<br>This is the second line.<br>And the third.'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.inline_filter
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML inline
+        snippet_body:
+          - html.inline
