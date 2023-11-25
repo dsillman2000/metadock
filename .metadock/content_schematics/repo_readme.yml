@@ -10,11 +10,11 @@ content_schematics:
         Jinja2: "[Jinja2](https://github.com/pallets/jinja)"
         marko: "[marko](https://github.com/frostming/marko)"
 
-      # Example project metadata
-      example_project: { import: example_project.yml, key: example_project }
-
-      # CLI information
-      cli: { import: cli.yml, key: cli }
+      <<: 
+        # Import example project configuration
+        - import: example_project.yml
+        # Import CLI information
+        - import: cli.yml
 
       # Target formats
       target_formats:

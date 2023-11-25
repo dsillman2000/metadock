@@ -47,7 +47,7 @@ def import_key(root_path: Path, relative_path: Path, key: Optional[str] = None) 
         exceptions.MetadockYamlImportError: Imported key / file could not be resolved
 
     Returns:
-        dict: Fully resolved yaml source from the external file
+        Any: Fully resolved yaml source from the external file
     """
 
     if not (root_path / relative_path).exists():
@@ -62,28 +62,31 @@ def import_key(root_path: Path, relative_path: Path, key: Optional[str] = None) 
     return resolve_all_imports(root_path, contents)
 
 
-def resolve_all_imports(root_path: Path, yaml_dict: dict[str, Any]) -> dict[str, Any]:
-    """Recursively resolve all imports in a yaml dictionary object.
+def resolve_all_imports(root_path: Path, yaml_obj: Any) -> Any:
+    """Recursively resolve all imports in a yaml object.
 
     Args:
         root_path (Path): Root path to resolve the imports
-        yaml_dict (dict[str, Any]): Dictionary object with imports to resolve
+        yaml_obj (Any): Yaml object with imports to resolve
 
     Raises:
         exceptions.MetadockYamlImportError: One or more import could not be resolved
 
     Returns:
-        dict[str, Any]: Dictionary object with imports resolved
+        Any: Yaml object with imports resolved
     """
-    if not isinstance(yaml_dict, dict):
-        return yaml_dict  # type: ignore
+    if isinstance(yaml_obj, list):
+        return [resolve_all_imports(root_path, el) for el in yaml_obj]
 
-    if set(yaml_dict.keys()) in ({"import"}, {"import", "key"}):
-        return import_key(root_path, yaml_dict["import"], yaml_dict.get("key", None))
+    if not isinstance(yaml_obj, dict):
+        return yaml_obj  # type: ignore
+
+    if set(yaml_obj.keys()) in ({"import"}, {"import", "key"}):
+        return import_key(root_path, yaml_obj["import"], yaml_obj.get("key", None))
 
     resolved_subdict: dict[str, Any] = {}
 
-    for key in yaml_dict.keys():
-        resolved_subdict[key] = resolve_all_imports(root_path, yaml_dict[key])
+    for key in yaml_obj.keys():
+        resolved_subdict[key] = resolve_all_imports(root_path, yaml_obj[key])
 
     return resolved_subdict
