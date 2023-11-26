@@ -320,7 +320,7 @@ and filters which can be used to make formatting content easier. The macros and 
 <tr>
 <td><pre>wrap</pre></td>
 <td><pre>metadock.env.MetadockEnv.wrap_filter: (self, value: str, wrap: str) -&gt; str</pre></td>
-<td>Filter which wraps an inner string with a given outer string. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; # Wrap with graves, like md.code(...)<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string.' | wrap('<code>&#x27;) }}&quot;).render()&lt;br&gt;&#x27;</code>This is a string.`'<br></pre></td>
+<td>Filter which wraps an inner string with a given outer string. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; # Wrap with graves, like md.code(...)<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string.' | wrap('`') }}&quot;).render()<br>'`This is a string.`'<br></pre></td>
 </tr>
 <tr>
 <td><pre>zip</pre></td>

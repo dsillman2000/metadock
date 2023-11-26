@@ -95,8 +95,8 @@ global:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> # Wrap with graves, like md.code(...)
-        >>> env.from_string("{{ 'This is a string.' | wrap('`') }}").render()
-        '`This is a string.`'
+        >>> env.from_string("{{ 'This is a string.' | wrap('\`') }}").render()
+        '\`This is a string.\`'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockEnv.wrap_filter
       signature: "(self, value: str, wrap: str) -> str"
