@@ -140,7 +140,7 @@ md:
       intellisense:
         snippet_key: Markdown convert
         snippet_body:
-          - md.convert($1)
+          - md.convert
 
     list:
       docstring: |

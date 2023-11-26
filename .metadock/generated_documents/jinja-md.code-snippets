@@ -118,7 +118,7 @@
         "scope": "jinja-md,md",
         "prefix": "md.convert",
         "body": [
-            "md.convert($1)"
+            "md.convert"
         ],
         "description": "Markdown convert filter"
     },
