@@ -112,11 +112,10 @@ example_project:
         target_formats: [ md+html, md ]
         context:
 
-          # "block" syntax for whole-file import,
-          all_contracts:
-            import: confluence/data_docs/contracts.yml
+          # "flow" syntax for a single whole-file import,
+          all_contracts: { import: confluence/data_docs/contracts.yml }
 
-          # "flow" syntax for importing multiple whole files using a merge key,
+          # "block" syntax for importing multiple whole files using a merge key,
           <<:
             - import: confluence/data_docs/projects.yml
             - import: confluence/data_docs/sources.yml

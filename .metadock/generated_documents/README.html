@@ -290,11 +290,10 @@ If you'd like to import the entire content of a file as context, you may omit th
   target_formats: [ md+html, md ]
   context:
 
-    # &quot;block&quot; syntax for whole-file import,
-    all_contracts:
-      import: confluence/data_docs/contracts.yml
+    # &quot;flow&quot; syntax for a single whole-file import,
+    all_contracts: { import: confluence/data_docs/contracts.yml }
 
-    # &quot;flow&quot; syntax for importing multiple whole files using a merge key,
+    # &quot;block&quot; syntax for importing multiple whole files using a merge key,
     &lt;&lt;:
       - import: confluence/data_docs/projects.yml
       - import: confluence/data_docs/sources.yml
