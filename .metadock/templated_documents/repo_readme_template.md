@@ -88,6 +88,38 @@ The natively supported values for `target_formats` are:
   - Generates the given template as plaintext, and adds the given string as a file extension, e.g. 
   `.txt`, `.sql` or `.py`.
 
+## Code splitting with YAML imports
+
+In order to keep your content schematics DRY, you can use YAML imports to split your content schematics into multiple
+YAML files. For example, if you have a set of content schematics responsible for laying out a "knowledge base" of 
+services maintained by your team, you might have a YAML file for each service, e.g. 
+`services/airflow/google_forms_scrubber.yml` and `services/pipelines/user_interaction_data_pipeline.yml` which 
+separately model their respective service specifications.
+
+A content schematic can import context from a specific YAML key in another YAML file by using the special _import-key_ 
+object, e.g.:
+
+{{
+    md.codeblock(
+        example_project.get("content_schematics").get("import_key_examples.yml"),
+        language="yml",
+    )
+}}
+
+Note that all paths for the `import` field are relative to the `content_schematics` folder for the project.
+If you'd like to import the entire content of a file as context, you may omit the `key` field, e.g.:
+
+{{
+    md.codeblock(
+        example_project.get("content_schematics").get("import_key_examples_2.yml"),
+        language="yml",
+    )
+}}
+
+At the moment, no protection against cyclic dependencies are implemented (apart from a recursion depth exception which
+will likely be thrown before memory is consumed). Users are responsible for ensuring that their imports do not create
+cyclic dependencies.
+
 ## Jinja Templating Helpers
 
 In the Jinja templating context which is loaded for each templated document, there are a handful of helpful Jinja macros

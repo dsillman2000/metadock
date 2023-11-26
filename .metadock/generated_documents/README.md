@@ -269,6 +269,73 @@ The natively supported values for `target_formats` are:
   - Generates the given template as plaintext, and adds the given string as a file extension, e.g. 
   `.txt`, `.sql` or `.py`.
 
+## Code splitting with YAML imports
+
+In order to keep your content schematics DRY, you can use YAML imports to split your content schematics into multiple
+YAML files. For example, if you have a set of content schematics responsible for laying out a "knowledge base" of 
+services maintained by your team, you might have a YAML file for each service, e.g. 
+`services/airflow/google_forms_scrubber.yml` and `services/pipelines/user_interaction_data_pipeline.yml` which 
+separately model their respective service specifications.
+
+A content schematic can import context from a specific YAML key in another YAML file by using the special _import-key_ 
+object, e.g.:
+
+```yml
+content_schematics:
+
+- name: alerting_project_proposal
+  template: airflow_project_proposal_template.md
+  target_formats: [ md+html, md ]
+
+  context:
+
+    jira:
+
+      # "block" syntax for importing a root-level key "IGDP"
+      project:
+        import: jira/projects.yml
+        key: IGDP
+
+      # "flow" syntax for importing a sub-key, "David_Sillman" inside "eng_identity"
+      code_owners: 
+        - { import: jira/identities.yml, key: eng_identity.David_Sillman }
+
+      # "flow" syntax for importing a sub-key using a merge key ("<<"),
+      <<: { import: team_contexts/data.yml, key: resources.alerting_channels }
+
+      # "block" syntax for importing multiple subkeys from multiple files using a merge key,
+      <<:
+        - import: team_contexts/data_contacts.yml
+          key: contacts.email
+        - import: team_contexts/data_push_api.yml
+          key: push_api.contracts
+```
+
+Note that all paths for the `import` field are relative to the `content_schematics` folder for the project.
+If you'd like to import the entire content of a file as context, you may omit the `key` field, e.g.:
+
+```yml
+content_schematics:
+
+- name: confluence_docs_summary
+  template: confluence/data_docs/confluence_docs_summary_template.md
+  target_formats: [ md+html, md ]
+  context:
+
+    # "block" syntax for whole-file import,
+    all_contracts:
+      import: confluence/data_docs/contracts.yml
+
+    # "flow" syntax for importing multiple whole files using a merge key,
+    <<:
+      - import: confluence/data_docs/projects.yml
+      - import: confluence/data_docs/sources.yml
+```
+
+At the moment, no protection against cyclic dependencies are implemented (apart from a recursion depth exception which
+will likely be thrown before memory is consumed). Users are responsible for ensuring that their imports do not create
+cyclic dependencies.
+
 ## Jinja Templating Helpers
 
 In the Jinja templating context which is loaded for each templated document, there are a handful of helpful Jinja macros
