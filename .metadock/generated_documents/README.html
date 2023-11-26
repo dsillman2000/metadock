@@ -438,7 +438,7 @@ and filters which can be used to make formatting content easier. The macros and 
 <tr>
 <td><pre>md.tablehead</pre></td>
 <td><pre>metadock.env.MetadockMdNamespace.tablehead: (self, *header_cells: str, bold: bool = False) -&gt; str</pre></td>
-<td>Produces a Markdown table header from the given cells by joining each cell with pipes (&quot;|&quot;) and wrapping the result in pipes, plus adding a header divider row. Cell contents have their pipes escaped with a backslash (&quot;\&quot;). To bold the header cell contents, supply <code>bold = true</code>. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(<br>...     &quot;{{ md.tablehead('Column 1', 'Column 2', 'Column 3', bold = true) }}&quot;<br>... ).render()<br>'| <b>Column 1</b> | <b>Column 2</b> | <b>Column 3</b> |\n| --- | --- | --- |'<br></pre></td>
+<td>Produces a Markdown table header from the given cells by joining each cell with pipes (&quot;|&quot;) and wrapping the result in pipes, plus adding a header divider row. Cell contents have their pipes escaped with a backslash (&quot;\&quot;). To bold the header cell contents, supply <code>bold = true</code>. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(<br>...     &quot;{{ md.tablehead('Column 1', 'Column 2', 'Column 3', bold = true) }}&quot;<br>... ).render()<br>'| &lt;b&gt;Column 1&lt;/b&gt; | &lt;b&gt;Column 2&lt;/b&gt; | &lt;b&gt;Column 3&lt;/b&gt; |\n| --- | --- | --- |'<br></pre></td>
 </tr>
 <tr>
 <td><pre>md.tablerow</pre></td>
