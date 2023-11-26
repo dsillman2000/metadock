@@ -1,0 +1,31 @@
+{
+    {% for ns in jinja_helpers.keys() %}
+    // Metadock snippets for macros and filters in {{ ns }} namespace
+    {% for macro_name, macro_spec in jinja_helpers[ns].get("macros", {}).items() -%}
+    {%- set macro_prefix_prefix = (ns ~ ".") if ns != "global" else "" -%}
+    {%- set intellisense_spec = macro_spec.get("intellisense") -%}
+    {%- set snippet_body_lines = intellisense_spec.get("snippet_body", []) | map("with_prefix", '"') | map("with_suffix", '"') %}
+    "(macro) {{ intellisense_spec.get("snippet_key") }}": {
+        "scope": "jinja-md,md",
+        "prefix": "{{ macro_prefix_prefix ~ macro_name }}",
+        "body": [
+            {{ snippet_body_lines | join(",\n") | indent(12) }}
+        ],
+        "description": "{{ intellisense_spec.get("snippet_key") }} macro"
+    },
+    {% endfor -%}
+    {%- for filter_name, filter_spec in jinja_helpers[ns].get("filters", {}).items() -%}
+    {%- set filter_prefix_prefix = (ns ~ ".") if ns != "global" else "" -%}
+    {%- set intellisense_spec = filter_spec.get("intellisense") -%}
+    {%- set snippet_body_lines = intellisense_spec.get("snippet_body", []) | map("with_prefix", '"') | map("with_suffix", '"') -%}
+    "(filter) {{ intellisense_spec.get("snippet_key") }}": {
+        "scope": "jinja-md,md",
+        "prefix": "{{ filter_prefix_prefix ~ filter_name }}",
+        "body": [
+            {{ snippet_body_lines | join(",\n") | indent(12) }}
+        ],
+        "description": "{{ intellisense_spec.get("snippet_key") }} filter"
+    },
+    {% endfor -%}
+    {%- endfor %}
+}

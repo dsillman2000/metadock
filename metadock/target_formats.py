@@ -2,6 +2,7 @@ import abc
 from typing import MutableMapping, Protocol, Type
 
 import marko
+from marko.ext.gfm import gfm
 
 from metadock import exceptions
 
@@ -110,4 +111,4 @@ class MdPlusHtmlTargetFormat(MetadockTargetFormat):
         Returns:
             str | bytes: HTML markup of the original Markdown document
         """
-        return marko.convert(str(rendered_document))
+        return gfm.convert(str(rendered_document))

@@ -25,7 +25,8 @@ Gitlab, or a static website. You can then compile your markdown documents using 
 <p>The root of your project is expected to have a <code>.metadock</code> folder, which can be generated from the CLI using
 <code>metadock init</code>.</p>
 <h2>Basic CLI Usage</h2>
-<p>The <code>metadock</code> CLI, installed using <code>pip install metadock</code>, has 5 basic commands, spelled out in the help message:</p>
+<p>The <code>metadock</code> CLI, installed using <code>pip install metadock</code>, has 5 basic commands,
+spelled out in the help message:</p>
 <pre><code class="language-sh">usage: metadock [-h] [-p PROJECT_DIR] {init,validate,build,list,clean} ...
 
 Generates and formats Jinja documentation templates from yaml sources.
@@ -55,7 +56,7 @@ options:
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.init</code></li>
-<li>Signature: <code>(Path | str) -&gt; metadock.Metadock</code></li>
+<li>Signature: <code>(self, working_directory: Path | str = Path.cwd()) -&gt; metadock.Metadock</code></li>
 </ul>
 </li>
 </ul>
@@ -70,7 +71,7 @@ options:
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.validate</code></li>
-<li>Signature: <code>() -&gt; metadock.engine.MetadockProjectValidationResult</code></li>
+<li>Signature: <code>(self) -&gt; metadock.engine.MetadockProjectValidationResult</code></li>
 </ul>
 </li>
 </ul>
@@ -85,7 +86,7 @@ options:
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.build</code></li>
-<li>Signature: <code>(list[str], list[str]) -&gt;  metadock.engine.MetadockProjectBuildResult</code></li>
+<li>Signature: <code>&quot;(self, schematic_globs: list[str] = [], template_globs: list[str] = []) -&gt;  metadock.engine.MetadockProjectBuildResult&quot;</code></li>
 </ul>
 </li>
 </ul>
@@ -100,7 +101,7 @@ options:
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.list</code></li>
-<li>Signature: <code>(list[str], list[str]) -&gt;  metadock.engine.MetadockProjectListResult</code></li>
+<li>Signature: <code>(self, schematic_globs: list[str] = [], template_globs: list[str] = []) -&gt;  list[str]</code></li>
 </ul>
 </li>
 </ul>
@@ -115,7 +116,7 @@ options:
 <li>
 <strong>Python interface</strong>:<ul>
 <li>Name: <code>metadock.Metadock.clean</code></li>
-<li>Signature: <code>() -&gt; None</code></li>
+<li>Signature: <code>(self) -&gt; None</code></li>
 </ul>
 </li>
 </ul>
@@ -150,11 +151,7 @@ For more information, please check out the Jira ticket associated with this MR, 
 <p>This is a very simple MR format which can easily be generalized to allow for quickly generating large sets of docs which
 meet the same format and style requirements. An example <em>content schematic</em> which could service this template could
 be in <code>gitlab_mr__feature1.yml</code>:</p>
-<pre><code class="language-yml">#...
-# yaml anchor definitions
-#...
-
-content_schematics:
+<pre><code class="language-yml">content_schematics:
 
 - name: gitlab_mr__feature1
   template: gitlab_mr_template.md
@@ -163,7 +160,8 @@ content_schematics:
   context:
 
     jira:
-      &lt;&lt;: *JiraProject-IGDP
+      project_name: &quot;IGDP&quot;
+      project_id: &quot;12001&quot;
       ticket_num: &quot;13&quot;
 
     merge_request:
@@ -174,8 +172,10 @@ content_schematics:
       breaking_changes:
         - summary: &quot;Dropping all records which are missing software version.&quot;
           affected_downstream:
-            - *Stakeholder-Service
-            - *Stakeholder-Analytics
+            - id: Service
+              email: service@company.com
+            - id: Analytics
+              email: analytics-data@company.com
           suggested_remedy: |
             - Drop all records which are missing software version.
             - Add software version as a hard requirement for staging.
@@ -205,8 +205,8 @@ Dropping all records which are missing software version.<ul>
 </ul>
 <p>For more information, please check out the Jira ticket associated with this MR, IGDP-13.</p>
 </blockquote>
-<p>Because the <code>target_formats</code> we chose included <code>md+html</code> <em>and</em> <code>md</code>, we also get an HTML rendering of the document for free,
-located at <code>generated_documents/gitlab_mr__feature_1.html</code>:</p>
+<p>Because the <code>target_formats</code> we chose included <code>md+html</code> <em>and</em> <code>md</code>, we also get an HTML rendering of the document for
+free, located at <code>generated_documents/gitlab_mr__feature_1.html</code>:</p>
 <pre><code class="language-html">&lt;h1&gt;[IGDP-13] Adding software version as hard requirement for staging&lt;/h1&gt;
 &lt;p&gt;Welcome to my MR. Some of the changes are listed below:&lt;/p&gt;
 &lt;ol&gt;
@@ -237,10 +237,344 @@ generated file.</p>
 <li>Generates the given template, parses it into a markdown document, and then generates HTML from it.</li>
 </ul>
 </li>
-<li>Anything else, e.g. <code>txt</code>, <code>sql</code> or <code>py</code></li>
-<li>Generates the given template as plaintext, and adds the given string as a file extension, e.g. <code>.txt</code>, <code>.sql</code> or
-<code>.py</code>.</li>
+<li>
+Anything else, e.g. <code>txt</code>, <code>sql</code> or <code>py</code>:<ul>
+<li>Generates the given template as plaintext, and adds the given string as a file extension, e.g.
+<code>.txt</code>, <code>.sql</code> or <code>.py</code>.</li>
 </ul>
+</li>
+</ul>
+<h2>Code splitting with YAML imports</h2>
+<p>In order to keep your content schematics DRY, you can use YAML imports to split your content schematics into multiple
+YAML files. For example, if you have a set of content schematics responsible for laying out a &quot;knowledge base&quot; of
+services maintained by your team, you might have a YAML file for each service, e.g.
+<code>services/airflow/google_forms_scrubber.yml</code> and <code>services/pipelines/user_interaction_data_pipeline.yml</code> which
+separately model their respective service specifications.</p>
+<p>A content schematic can import context from a specific YAML key in another YAML file by using the special <em>import-key</em>
+object, e.g.:</p>
+<pre><code class="language-yml">content_schematics:
+
+- name: alerting_project_proposal
+  template: airflow_project_proposal_template.md
+  target_formats: [ md+html, md ]
+
+  context:
+
+    jira:
+
+      # &quot;block&quot; syntax for importing a root-level key &quot;IGDP&quot;
+      project:
+        import: jira/projects.yml
+        key: IGDP
+
+      # &quot;flow&quot; syntax for importing a sub-key, &quot;David_Sillman&quot; inside &quot;eng_identity&quot;
+      code_owners: 
+        - { import: jira/identities.yml, key: eng_identity.David_Sillman }
+
+      # &quot;flow&quot; syntax for importing a sub-key using a merge key (&quot;&lt;&lt;&quot;),
+      &lt;&lt;: { import: team_contexts/data.yml, key: resources.alerting_channels }
+
+      # &quot;block&quot; syntax for importing multiple subkeys from multiple files using a merge key,
+      &lt;&lt;:
+        - import: team_contexts/data_contacts.yml
+          key: contacts.email
+        - import: team_contexts/data_push_api.yml
+          key: push_api.contracts
+</code></pre>
+<p>Note that all paths for the <code>import</code> field are relative to the <code>content_schematics</code> folder for the project.
+If you'd like to import the entire content of a file as context, you may omit the <code>key</code> field, e.g.:</p>
+<pre><code class="language-yml">content_schematics:
+
+- name: confluence_docs_summary
+  template: confluence/data_docs/confluence_docs_summary_template.md
+  target_formats: [ md+html, md ]
+  context:
+
+    # &quot;flow&quot; syntax for a single whole-file import,
+    all_contracts: { import: confluence/data_docs/contracts.yml }
+
+    # &quot;block&quot; syntax for importing multiple whole files using a merge key,
+    &lt;&lt;:
+      - import: confluence/data_docs/projects.yml
+      - import: confluence/data_docs/sources.yml
+</code></pre>
+<p>At the moment, no protection against cyclic dependencies are implemented (apart from a recursion depth exception which
+will likely be thrown before memory is consumed). Users are responsible for ensuring that their imports do not create
+cyclic dependencies.</p>
+<h2>Jinja Templating Helpers</h2>
+<p>In the Jinja templating context which is loaded for each templated document, there are a handful of helpful Jinja macros
+and filters which can be used to make formatting content easier. The macros and filters are segregated into
+3 namespaces, documented below:</p>
+<h3>Global namespace</h3>
+<p>Jinja namespace for the global Metadock environment, including all global macros, filters, and namespaces.</p>
+<h4>Jinja macros</h4>
+<p>The following macros are available in the global namespace:</p>
+<ul>
+<li><code>debug</code></li>
+</ul>
+<details>
+<summary>
+<b>Jinja macro reference</b>
+</summary>
+<table>
+<thead>
+<tr>
+<th><b>Macro</b></th>
+<th><b>Signature</b></th>
+<th><b>Doc</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><pre>debug</pre></td>
+<td><pre>metadock.env.MetadockEnv.debug: (self, message: str) -&gt; None</pre></td>
+<td>Prints a debug message to stdout, and returns an empty string.<br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;No changes!{{ debug('This is a debug message.') }}&quot;).render()<br>This is a debug message.<br>'No changes!'<br></pre></td>
+</tr>
+</tbody></table></details>
+<h4>Jinja filters</h4>
+<p>The following filters are available in the global namespace:</p>
+<ul>
+<li><code>chain</code></li>
+<li><code>inline</code></li>
+<li><code>with_prefix</code></li>
+<li><code>with_suffix</code></li>
+<li><code>wrap</code></li>
+<li><code>zip</code></li>
+</ul>
+<details>
+<summary>
+<b>Jinja filter reference</b>
+</summary>
+<table>
+<thead>
+<tr>
+<th><b>Filter</b></th>
+<th><b>Signature</b></th>
+<th><b>Doc</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><pre>chain</pre></td>
+<td><pre>metadock.env.MetadockEnv.chain_filter: (self, iterables: Sequence[Iterable[Any]]) -&gt; Iterable[Any]</pre></td>
+<td>Filter which flattens a sequence of iterables into a single iterable. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string('{{ {&quot;first&quot;: 1, &quot;second&quot;: 2}.items() | chain | join(&quot; &quot;) }}').render()<br>'first 1 second 2'<br></pre></td>
+</tr>
+<tr>
+<td><pre>inline</pre></td>
+<td><pre>metadock.env.MetadockEnv.inline_filter: (self, value: str) -&gt; str</pre></td>
+<td>Filter which inlines a string by replacing all newlines with spaces, and all double spaces with single spaces. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' | inline }}&quot;).render()<br>'This is a multi-line string. This is the second line. And the third.'<br></pre></td>
+</tr>
+<tr>
+<td><pre>with_prefix</pre></td>
+<td><pre>metadock.env.MetadockEnv.with_prefix_filter: (self, value: str, prefix: str, sep: str = '') -&gt; str</pre></td>
+<td>Filter which prepends a prefix to a string, with an optional separator. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string.' | with_prefix('Prefix') }}&quot;).render()<br>'PrefixThis is a string.'<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string.' | with_prefix('Prefix: ', sep = ' : ') }}&quot;).render()<br>'Prefix : This is a string.'<br></pre></td>
+</tr>
+<tr>
+<td><pre>with_suffix</pre></td>
+<td><pre>metadock.env.MetadockEnv.with_suffix_filter: (self, value: str, suffix: str, sep: str = '') -&gt; str</pre></td>
+<td>Filter which appends a suffix to a string, with an optional separator. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string' | with_suffix('Suffix') }}&quot;).render()<br>'This is a stringSuffix'<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string' | with_suffix('Suffix', sep = ' : ') }}&quot;).render()<br>'This is a string : Suffix'<br></pre></td>
+</tr>
+<tr>
+<td><pre>wrap</pre></td>
+<td><pre>metadock.env.MetadockEnv.wrap_filter: (self, value: str, wrap: str) -&gt; str</pre></td>
+<td>Filter which wraps an inner string with a given outer string. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; # Wrap with graves, like md.code(...)<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string.' | wrap('`') }}&quot;).render()<br>'`This is a string.`'<br></pre></td>
+</tr>
+<tr>
+<td><pre>zip</pre></td>
+<td><pre>metadock.env.MetadockEnv.zip_filter: (self, input_iterable: Iterable[Any], *iterables: Iterable[Any]) -&gt; Iterable[tuple[Any, ...]]</pre></td>
+<td>Filter which zips an input iterable with one or more iterables. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ ['a', 'b', 'c'] | zip([1, 2, 3]) | list }}&quot;).render()<br>&quot;[('a', 1), ('b', 2), ('c', 3)]&quot;<br></pre></td>
+</tr>
+</tbody></table></details>
+<h3><code>md</code> namespace</h3>
+<p>Jinja Namespace for Markdown-related functions and filters.</p>
+<p><strong>Macros</strong>:</p>
+<pre><code>blockquote
+code
+codeblock
+list
+tablehead
+tablerow
+</code></pre>
+<p><strong>Filters</strong>:</p>
+<pre><code>convert
+list
+</code></pre>
+<h4>Jinja macros</h4>
+<p>The following macros are available in the md namespace:</p>
+<ul>
+<li><code>md.blockquote</code></li>
+<li><code>md.code</code></li>
+<li><code>md.codeblock</code></li>
+<li><code>md.list</code></li>
+<li><code>md.tablehead</code></li>
+<li><code>md.tablerow</code></li>
+</ul>
+<details>
+<summary>
+<b>Jinja macro reference</b>
+</summary>
+<table>
+<thead>
+<tr>
+<th><b>Macro</b></th>
+<th><b>Signature</b></th>
+<th><b>Doc</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><pre>md.blockquote</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.blockquote: (self, content: str) -&gt; str</pre></td>
+<td>Produces a Markdown blockquote from the given content by prepending each line with a gt symbol (&quot;&gt; &quot;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ md.blockquote('This is a blockquote.') }}&quot;).render()<br>'&gt; This is a blockquote.'<br></pre></td>
+</tr>
+<tr>
+<td><pre>md.code</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.code: (self, content: str) -&gt; str</pre></td>
+<td>Produces a Markdown inline code block from the given content by wrapping the string in graves (&quot;`&quot;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ md.code('This is an inline code block.') }}&quot;).render()<br>'`This is an inline code block.`'<br></pre></td>
+</tr>
+<tr>
+<td><pre>md.codeblock</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.codeblock: (self, content: str, language: str = '') -&gt; str</pre></td>
+<td>Produces a Markdown codeblock from the given content by wrapping the string in triple-graves (&quot;```&quot;), and optionally specifies a language. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ md.codeblock('This is a codeblock.', language = 'sh') }}&quot;).render()<br>'<code>sh\nThis is a codeblock.\n</code>'<br></pre></td>
+</tr>
+<tr>
+<td><pre>md.list</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.list: (self, *items: str) -&gt; str</pre></td>
+<td>Produces a Markdown list from the given content by prepending each line with a dash (&quot;- &quot;). If any of its arguments are, themselves, formatted as Markdown lists, then they are simply indented as sublists. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(<br>...     &quot;{{ md.list('This is a list.', md.list('This is a sublist,', 'in two pieces.')) }}&quot;<br>... ).render()<br>'- This is a list.\n  - This is a sublist,\n  - in two pieces.'<br></pre></td>
+</tr>
+<tr>
+<td><pre>md.tablehead</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.tablehead: (self, *header_cells: str, bold: bool = False) -&gt; str</pre></td>
+<td>Produces a Markdown table header from the given cells by joining each cell with pipes (&quot;|&quot;) and wrapping the result in pipes, plus adding a header divider row. Cell contents have their pipes escaped with a backslash (&quot;\&quot;). To bold the header cell contents, supply <code>bold = true</code>. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(<br>...     &quot;{{ md.tablehead('Column 1', 'Column 2', 'Column 3', bold = true) }}&quot;<br>... ).render()<br>'| <b>Column 1</b> | <b>Column 2</b> | <b>Column 3</b> |\n| --- | --- | --- |'<br></pre></td>
+</tr>
+<tr>
+<td><pre>md.tablerow</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.tablerow: (self, *row_cells: str) -&gt; str</pre></td>
+<td>Produces a Markdown table row from the given cells by joining each cell with pipes (&quot;|&quot;) and wrapping the result in pipes. Cell contents have their pipes escaped with a backslash (&quot;\&quot;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(<br>...     &quot;{{ md.tablehead('Column 1', 'Column 2', 'Column 3') }}\n&quot;<br>...     &quot;{{ md.tablerow('Value 1', 'Value 2', 'Value 3') }}&quot;<br>... ).render()<br>'| Column 1 | Column 2 | Column 3 |\n| --- | --- | --- |\n| Value 1 | Value 2 | Value 3 |'<br></pre></td>
+</tr>
+</tbody></table></details>
+<h4>Jinja filters</h4>
+<p>The following filters are available in the md namespace:</p>
+<ul>
+<li><code>md.convert</code></li>
+<li><code>md.list</code></li>
+</ul>
+<details>
+<summary>
+<b>Jinja filter reference</b>
+</summary>
+<table>
+<thead>
+<tr>
+<th><b>Filter</b></th>
+<th><b>Signature</b></th>
+<th><b>Doc</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><pre>md.convert</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.convert_filter: (self, md_content: str) -&gt; str</pre></td>
+<td>Filter which converts Markdown content to HTML, by invoking <code>marko.convert</code> (using github-flavored md). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ '# This is a heading\n\n&gt; And a block quote.' | md.convert }}&quot;).render()<br>'<h1>This is a heading</h1>\n<blockquote>\n<p>And a block quote.</p>\n</blockquote>\n'<br></pre></td>
+</tr>
+<tr>
+<td><pre>md.list</pre></td>
+<td><pre>metadock.env.MetadockMdNamespace.list_filter: (self, values: str | Iterable[str]) -&gt; str</pre></td>
+<td>Filter which unpacks an iterable of values into a Markdown list, or formats a single value as a Markdown list element. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(<br>...     &quot;{{ ['This is a list.', 'This is a second element'] | md.list }}\n&quot;<br>... ).render()<br>'- This is a list.\n- This is a second element\n'<br></pre></td>
+</tr>
+</tbody></table></details>
+<h3><code>html</code> namespace</h3>
+<p>Jinja namespace which owns HTML-related functions and filters.</p>
+<h4>Jinja macros</h4>
+<p>The following macros are available in the html namespace:</p>
+<ul>
+<li><code>html.bold</code></li>
+<li><code>html.code</code></li>
+<li><code>html.details</code></li>
+<li><code>html.italic</code></li>
+<li><code>html.pre</code></li>
+<li><code>html.summary</code></li>
+<li><code>html.underline</code></li>
+</ul>
+<details>
+<summary>
+<b>Jinja macro reference</b>
+</summary>
+<table>
+<thead>
+<tr>
+<th><b>Macro</b></th>
+<th><b>Signature</b></th>
+<th><b>Doc</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><pre>html.bold</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.bold: (self, content: str) -&gt; str</pre></td>
+<td>Wraps a string in HTML bold tags (&lt;b&gt;&lt;/b&gt;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ html.bold('This is bold text.') }}&quot;).render()<br>'<b>This is bold text.</b>'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.code</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.code: (self, content: str) -&gt; str</pre></td>
+<td>Wraps a string in HTML code tags (&lt;code&gt;&lt;/code&gt;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ html.code('This is code text.') }}&quot;).render()<br>'<code>This is code text.</code>'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.details</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.details: (self, *contents: str) -&gt; str</pre></td>
+<td>Wraps a string in line-broken HTML details tags (&lt;details&gt;&lt;/details&gt;). Multiple arguments get separated by two line breaks. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ html.details('This is details text.') }}&quot;).render()<br>'<details>\nThis is details text.\n</details>'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.italic</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.italic: (self, content: str) -&gt; str</pre></td>
+<td>Wraps a string in HTML italic tags (&lt;i&gt;&lt;/i&gt;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ html.italic('This is italic text.') }}&quot;).render()<br>'<i>This is italic text.</i>'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.pre</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.pre: (self, content: str, indent: int = 0) -&gt; str</pre></td>
+<td>Wraps a string in preformatted HTML pre tags (&lt;pre&gt;&lt;/pre&gt;), and indents the content by the given amount. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ html.pre('This is code text.', indent = 4) }}&quot;).render()<br>'<pre>    This is code text.</pre>'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.summary</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.summary: (self, content: str) -&gt; str</pre></td>
+<td>Wraps a string in line-broken HTML summary tags (&lt;summary&gt;\n\n&lt;/summary&gt;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ html.summary('This is summary text.') }}&quot;).render()<br>'<summary>\nThis is summary text.\n</summary>'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.underline</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.underline: (self, content: str) -&gt; str</pre></td>
+<td>Wraps a string in HTML underline tags (&lt;u&gt;&lt;/u&gt;). <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ html.underline('This is underlined text.') }}&quot;).render()<br>'<u>This is underlined text.</u>'<br></pre></td>
+</tr>
+</tbody></table></details>
+<h4>Jinja filters</h4>
+<p>The following filters are available in the html namespace:</p>
+<ul>
+<li><code>html.escape</code></li>
+<li><code>html.inline</code></li>
+</ul>
+<details>
+<summary>
+<b>Jinja filter reference</b>
+</summary>
+<table>
+<thead>
+<tr>
+<th><b>Filter</b></th>
+<th><b>Signature</b></th>
+<th><b>Doc</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><pre>html.escape</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.escape_filter: (self, content: str) -&gt; str</pre></td>
+<td>Filter which escapes a string by replacing all HTML special characters with their HTML entity equivalents. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ '<p>This is a paragraph.</p>' | html.escape }}&quot;).render()<br>'&lt;p&gt;This is a paragraph.&lt;/p&gt;'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.inline</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.inline_filter: (self, content: str) -&gt; str</pre></td>
+<td>Filter which inlines a string by replacing all newlines with HTML line-breaks &lt;br&gt; singleton tags. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' | html.inline }}&quot;).render()<br>'This is a multi-line string.<br>This is the second line.<br>And the third.'<br></pre></td>
+</tr>
+</tbody></table></details>
 <h2>Acknowledgements</h2>
 <p>Author:</p>
 <ul>

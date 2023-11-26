@@ -18,7 +18,8 @@ The root of your project is expected to have a `.metadock` folder, which can be 
 
 ## Basic CLI Usage
 
-The `metadock` CLI, installed using `pip install metadock`, has {{ cli.get("commands") | length }} basic commands, spelled out in the help message:
+The `metadock` CLI, installed using `pip install metadock`, has {{ cli.get("commands") | length }} basic commands, 
+spelled out in the help message:
 
 {{ md.codeblock(cli.get("usage_string"), language="sh") }}
 
@@ -33,7 +34,7 @@ Each of the commands supports a programmatic invocation from the `metadock.Metad
   - Name: {{ md.code(python_interface.get("method_name")) }}
   - Signature: {{ md.code(python_interface.get("signature")) }}
 {%- endset -%}
-{{ html.details(html.summary(html.code("metadock " ~ command)), (command_details | md.convert)) }}
+    {{ html.details(html.summary(html.code("metadock " ~ command)), (command_details | md.convert)) }}
 {% endfor %}
 
 ## Example Usage
@@ -50,7 +51,6 @@ In the example above, we can imagine the content of our template, `gitlab_mr_tem
 This is a very simple MR format which can easily be generalized to allow for quickly generating large sets of docs which
 meet the same format and style requirements. An example *content schematic* which could service this template could
 be in `gitlab_mr__feature1.yml`:
-
 {{
     md.codeblock(
         example_project.get("content_schematics").get("gitlab_mr__feature1.yml"),
@@ -63,8 +63,8 @@ called `generated_documents/gitlab_mr__feature1.md`:
 
 {{ md.blockquote(example_project.get("generated_documents").get("gitlab_mr__feature1.md")) }}
 
-Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for free,
-located at `generated_documents/gitlab_mr__feature_1.html`:
+Because the `target_formats` we chose included `md+html` _and_ `md`, we also get an HTML rendering of the document for 
+free, located at `generated_documents/gitlab_mr__feature_1.html`:
 
 {{
     md.codeblock(
@@ -84,16 +84,135 @@ The natively supported values for `target_formats` are:
 {% for target_format, data in target_formats.items() %}
 {{ md.list(md.code(target_format) ~ ":", md.list(data.get("description"))) }}
 {% endfor -%}
-{{ 
-    md.list(
-        "Anything else, e.g. `txt`, `sql` or `py`", 
-        "Generates the given template as plaintext, and adds the given string as a file extension, e.g. `.txt`, `.sql` or
-        `.py`."
-    ) 
+- Anything else, e.g. `txt`, `sql` or `py`:
+  - Generates the given template as plaintext, and adds the given string as a file extension, e.g. 
+  `.txt`, `.sql` or `.py`.
+
+## Code splitting with YAML imports
+
+In order to keep your content schematics DRY, you can use YAML imports to split your content schematics into multiple
+YAML files. For example, if you have a set of content schematics responsible for laying out a "knowledge base" of 
+services maintained by your team, you might have a YAML file for each service, e.g. 
+`services/airflow/google_forms_scrubber.yml` and `services/pipelines/user_interaction_data_pipeline.yml` which 
+separately model their respective service specifications.
+
+A content schematic can import context from a specific YAML key in another YAML file by using the special _import-key_ 
+object, e.g.:
+
+{{
+    md.codeblock(
+        example_project.get("content_schematics").get("import_key_examples.yml"),
+        language="yml",
+    )
 }}
+
+Note that all paths for the `import` field are relative to the `content_schematics` folder for the project.
+If you'd like to import the entire content of a file as context, you may omit the `key` field, e.g.:
+
+{{
+    md.codeblock(
+        example_project.get("content_schematics").get("import_key_examples_2.yml"),
+        language="yml",
+    )
+}}
+
+At the moment, no protection against cyclic dependencies are implemented (apart from a recursion depth exception which
+will likely be thrown before memory is consumed). Users are responsible for ensuring that their imports do not create
+cyclic dependencies.
+
+## Jinja Templating Helpers
+
+In the Jinja templating context which is loaded for each templated document, there are a handful of helpful Jinja macros
+and filters which can be used to make formatting content easier. The macros and filters are segregated into 
+{{ jinja_helpers.keys() | length }} namespaces, documented below:
+
+{% for namespace, namespace_spec in jinja_helpers.items() -%}
+{%- set namespace_title_prefix = "Global" if namespace == "global" else md.code(namespace) -%}
+{%- set ns_code_prefix = (namespace ~ ".") if namespace != "global" else "" -%}
+{%- set namespace_intro -%}
+### {{ namespace_title_prefix }} namespace
+
+{{ namespace_spec.get("docstring") }}
+{% endset -%}
+{%- set ns_macro_intro -%}
+{%- if namespace_spec.get("macros", {}).keys() | length %}
+The following macros are available in the {{ namespace }} namespace:
+
+{{ 
+    namespace_spec.get("macros", {}).keys() 
+    | map("with_prefix", ns_code_prefix) 
+    | map("wrap", "`")
+    | md.list
+}}
+{%- else -%}
+There are no macros available in the {{ namespace }} namespace.
+{%- endif -%}
+{%- endset -%}
+{%- set ns_macro_table -%}
+{{ md.tablehead("Macro", "Signature", "Doc", bold=true) }}
+{% for macro, macro_spec in namespace_spec.get("macros", {}).items() -%}
+{{
+    md.tablerow(
+        html.pre(ns_code_prefix ~ macro), 
+        html.pre(macro_spec.get("method_name") ~ ": " ~ macro_spec.get("signature")),
+        (macro_spec.get("docstring") | inline | html.escape) ~ "<br/><br/>" ~ (html.pre(macro_spec.get("example")) 
+        | html.inline),
+    )
+}}
+{% endfor -%}
+{%- endset -%}
+{%- set ns_filter_intro -%}
+{%- if namespace_spec.get("filters", {}).keys() | length %}
+The following filters are available in the {{ namespace }} namespace:
+
+{{ 
+    namespace_spec.get("filters", {}).keys() 
+    | map("with_prefix", ns_code_prefix) 
+    | map("wrap", "`")
+    | md.list
+}}
+{%- else -%}
+There are no filters available in the {{ namespace }} namespace.
+{%- endif -%}
+{%- endset -%}
+{%- set ns_filter_table -%}
+{{ md.tablehead("Filter", "Signature", "Doc", bold=true) }}
+{% for filter, filter_spec in namespace_spec.get("filters", {}).items() -%}
+{{
+    md.tablerow(
+        html.pre(ns_code_prefix ~ filter), 
+        html.pre(filter_spec.get("method_name") ~ ": " ~ filter_spec.get("signature")),
+        (
+            filter_spec.get("docstring") 
+            | inline 
+            | html.escape
+        ) ~ "<br/><br/>" ~ (
+            html.pre(filter_spec.get("example")) 
+            | html.inline
+        ),
+    )
+}}
+{% endfor -%}
+{%- endset -%}
+{{ namespace_intro }}
+
+#### Jinja macros
+{{ ns_macro_intro }}
+
+{% if namespace_spec.get("macros", {}).keys() | length -%}
+{{ html.details(html.summary(html.bold("Jinja macro reference")), ns_macro_table) }}
+{%- endif %}
+
+#### Jinja filters
+{{ ns_filter_intro }}
+
+{% if namespace_spec.get("filters", {}).keys() | length -%}
+{{ html.details(html.summary(html.bold("Jinja filter reference")), ns_filter_table) }}
+{% endif %}
+{% endfor %}
 
 ## Acknowledgements
 
 Author{% if (authors | length) > 1 %}s{% endif %}:
 
-{{ md.list(*authors) }}
+{{ authors | md.list }}

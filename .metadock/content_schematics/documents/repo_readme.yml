@@ -1,0 +1,26 @@
+content_schematics:
+  - name: README
+    template: repo_readme_template.md
+    target_formats: [md+html, md]
+    context:
+      # Hyperlinks in readme
+      links:
+        Jinja2: "[Jinja2](https://github.com/pallets/jinja)"
+        marko: "[marko](https://github.com/frostming/marko)"
+
+      <<:
+        # Import example project configuration
+        - import: example_project.yml
+        # Import CLI information
+        - import: cli.yml
+        # Import Jinja2 helpers
+        - import: jinja_helpers.yml
+
+      # Target formats
+      target_formats:
+        md+html:
+          description: Generates the given template, parses it into a markdown document, and then generates HTML from it.
+
+      # Project author(s)
+      authors:
+        - David Sillman <dsillman2000@gmail.com>

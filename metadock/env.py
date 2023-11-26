@@ -1,9 +1,10 @@
 import abc
+import html
 import itertools
 from typing import Annotated, Any, Iterable, Literal, Sequence
 
 import jinja2
-import marko
+from marko.ext.gfm import gfm
 
 
 def _is_nonstr_iter(item: Any) -> bool:
@@ -69,7 +70,8 @@ class MetadockNamespace(abc.ABC):
 class MetadockMdNamespace(MetadockNamespace):
     """Jinja Namespace for Markdown-related functions and filters.
 
-    Exports:
+    **Macros**:
+
         blockquote
         code
         codeblock
@@ -77,7 +79,8 @@ class MetadockMdNamespace(MetadockNamespace):
         tablehead
         tablerow
 
-    Filters:
+    **Filters**:
+
         convert
         list
     """
@@ -86,7 +89,7 @@ class MetadockMdNamespace(MetadockNamespace):
     filters = ["convert", "list"]
 
     def blockquote(self, content: str) -> str:
-        """Produces a Markdown blockquote from the given content.
+        """Produces a Markdown blockquote from the given content by prepending each line with a gt symbol ("> ").
 
         Args:
             content (str): The content of the blockquote.
@@ -97,8 +100,20 @@ class MetadockMdNamespace(MetadockNamespace):
         _blockquoted = content.strip().replace("\n", "\n> ")
         return f"> {_blockquoted}"
 
+    def code(self, content: str) -> str:
+        """Produces a Markdown inline code block from the given content by wrapping the string in graves ("`").
+
+        Args:
+            content (str): The content of the inline code block.
+
+        Returns:
+            str: The Markdown inline code block.
+        """
+        return f"`{content.strip()}`"
+
     def codeblock(self, content: str, language: str = "") -> str:
-        """Produces a Markdown codeblock from the given content.
+        """Produces a Markdown codeblock from the given content by wrapping the string in triple-graves ("```"),
+        and optionally specifies a language.
 
         Args:
             content (str): The content of the codeblock.
@@ -109,45 +124,9 @@ class MetadockMdNamespace(MetadockNamespace):
         """
         return f"```{language}\n{content.strip()}\n```"
 
-    def code(self, content: str) -> str:
-        """Produces a Markdown inline code block from the given content.
-
-        Args:
-            content (str): The content of the inline code block.
-
-        Returns:
-            str: The Markdown inline code block.
-        """
-        return f"`{content.strip()}`"
-
-    def tablerow(self, *cells: str) -> str:
-        """Produces a Markdown table row from the given cells.
-
-        Args:
-            *cells (str): The cells of the table row.
-
-        Returns:
-            str: The Markdown table row.
-        """
-        return "| " + " | ".join(cells) + " |"
-
-    def tablehead(self, *header_cells: str, bold: bool = False) -> str:
-        """Produces a Markdown table header row from the given header cells.
-
-        Args:
-            *header_cells (str): The header cells of the table header row.
-            bold (bool, optional): Whether or not to bold the header's contents. Defaults to False.
-
-        Returns:
-            str: The Markdown table header row.
-        """
-        if bold:
-            header_cells = tuple(MetadockHtmlNamespace().bold(cell) for cell in header_cells)
-        return self.tablerow(*header_cells) + "\n" + self.tablerow(*(["---"] * len(header_cells)))
-
     def list(self, *items: str) -> str:
-        """Produces a Markdown list from the given items, even when those items themselves may be formatted as Markdown
-        lists.
+        """Produces a Markdown list from the given content by prepending each line with a dash ("- "). If any of its
+        arguments are, themselves, formatted as Markdown lists, then they are simply indented as sublists.
 
         Args:
             *items (str): The individual items and/or sub-lists which compose the list.
@@ -168,8 +147,38 @@ class MetadockMdNamespace(MetadockNamespace):
             for flat_item, indented_item in zip(flat_items, indented_items)
         )
 
+    def tablerow(self, *cells: str) -> str:
+        """Produces a Markdown table row from the given cells by joining each cell with pipes ("|") and wrapping the
+        result in pipes. Cell contents have their pipes escaped with a backslash ("\\").
+
+        Args:
+            *cells (str): The cells of the table row.
+
+        Returns:
+            str: The Markdown table row.
+        """
+        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), cells))
+        return "| " + " | ".join(_pipe_escaped_cells) + " |"
+
+    def tablehead(self, *header_cells: str, bold: bool = False) -> str:
+        """Produces a Markdown table header from the given cells by joining each cell with pipes ("|") and wrapping the
+        result in pipes, plus adding a header divider row. Cell contents have their pipes escaped with a backslash
+        ("\\"). To bold the header cell contents, supply `bold = true`.
+
+        Args:
+            *header_cells (str): The header cells of the table header row.
+            bold (bool, optional): Whether or not to bold the header's contents. Defaults to False.
+
+        Returns:
+            str: The Markdown table header row.
+        """
+        _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), header_cells))
+        if bold:
+            _pipe_escaped_cells = tuple(MetadockHtmlNamespace().bold(cell) for cell in _pipe_escaped_cells)
+        return self.tablerow(*_pipe_escaped_cells) + "\n" + self.tablerow(*(["---"] * len(_pipe_escaped_cells)))
+
     def convert_filter(self, md_content: str) -> str:
-        """Filter which converts Markdown content to HTML, by invoking `marko.convert`.
+        """Filter which converts Markdown content to HTML, by invoking `marko.convert` (using github-flavored md).
 
         Args:
             md_content (str): The Markdown content to be converted to HTML.
@@ -177,7 +186,7 @@ class MetadockMdNamespace(MetadockNamespace):
         Returns:
             str: The HTML content.
         """
-        return marko.convert(md_content)
+        return gfm.convert(md_content)
 
     def list_filter(self, values: str | Iterable[str]) -> str:
         """Filter which unpacks an iterable of values into a Markdown list, or formats a single value as a Markdown list
@@ -197,17 +206,24 @@ class MetadockMdNamespace(MetadockNamespace):
 class MetadockHtmlNamespace(MetadockNamespace):
     """Jinja namespace which owns HTML-related functions and filters.
 
-    Exports:
+    **Macros**:
+
         bold
         code
-        codeblock
         details
         italic
+        pre
         summary
         underline
+
+    **Filters**:
+
+        escape
+        inline
     """
 
-    exports = ["bold", "code", "codeblock", "details", "italic", "summary", "underline"]
+    exports = ["bold", "code", "details", "italic", "pre", "summary", "underline"]
+    filters = ["escape", "inline"]
 
     def bold(self, content: str) -> str:
         """Wraps a string in HTML bold tags (<b></b>).
@@ -231,32 +247,18 @@ class MetadockHtmlNamespace(MetadockNamespace):
         """
         return f"<code>{content}</code>"
 
-    def codeblock(self, content: str, indent: int = 0) -> str:
-        """Wraps a string in line-broken HTML code tags (<code>\\n\\n</code>), and indents the content by the given
-        amount.
-
-        Args:
-            content (str): The content to be formatted as code.
-            indent (int, optional): Number of spaces which should be used to indent the contents. Defaults to 0.
-
-        Returns:
-            str: The HTML code block content.
-        """
-        indented_content = content.replace("\n", "\n" + " " * indent)
-        return f"<code>\n{indented_content}\n</code>"
-
-    def details(self, *contents: str, indent: int = 0) -> str:
-        """Wraps a string in HTML details tags (<details></details>), and indents the content by the given amount.
+    def details(self, *contents: str) -> str:
+        """Wraps a string in HTML details tags (<details></details>). Multiple arguments get separated by two line
+        breaks.
 
         Args:
             *contents (str): The content to be wrapped in details tags. Multiple arguments get separated by two line
                 breaks.
-            indent (int, optional): Number of spaces which should be used to indent the contents. Defaults to 0.
 
         Returns:
             str: The HTML details content.
         """
-        indented_linesep_contents = "\n\n".join(contents).replace("\n", "\n" + " " * indent)
+        indented_linesep_contents = "\n\n".join(contents).replace("\n", "\n")
         return f"<details>\n{indented_linesep_contents}\n</details>"
 
     def italic(self, content: str) -> str:
@@ -270,18 +272,30 @@ class MetadockHtmlNamespace(MetadockNamespace):
         """
         return f"<i>{content}</i>"
 
-    def summary(self, content: str, indent: int = 0) -> str:
-        """Wraps a string in HTML summary tags (<summary></summary>), and indents the content by the given amount.
+    def pre(self, content: str, indent: int = 0) -> str:
+        """Wraps a string in preformatted HTML pre tags (<pre></pre>), and indents the content by the
+        given amount.
+
+        Args:
+            content (str): The content to be formatted as pre-formatted code.
+            indent (int, optional): Number of spaces which should be used to indent the contents. Defaults to 0.
+
+        Returns:
+            str: The HTML code block content.
+        """
+        indented_content = " " * indent + content.replace("\n", "\n" + " " * indent)
+        return f"<pre>{indented_content}</pre>"
+
+    def summary(self, content: str) -> str:
+        """Wraps a string in HTML summary tags (<summary></summary>).
 
         Args:
             content (str): The content to be wrapped in summary tags.
-            indent (int, optional): Number of spaces to use when indenting the content. Defaults to 0.
 
         Returns:
             str: The HTML summary content.
         """
-        indented_content = content.replace("\n", "\n" + " " * indent)
-        return f"<summary>\n{indented_content}\n</summary>"
+        return f"<summary>\n{content}\n</summary>"
 
     def underline(self, content: str) -> str:
         """Wraps a string in HTML underline tags (<u></u>).
@@ -294,22 +308,48 @@ class MetadockHtmlNamespace(MetadockNamespace):
         """
         return f"<u>{content}</u>"
 
+    def escape_filter(self, content: str) -> str:
+        """Filter which escapes a string by replacing all HTML special characters with their HTML entity equivalents.
+
+        Args:
+            content (str): Piped input string to be HTML-escaped.
+
+        Returns:
+            str: The escaped string.
+        """
+        return html.escape(content)
+
+    def inline_filter(self, content: str) -> str:
+        """Filter which inlines a string by replacing all newlines with HTML line-break <br> singleton tags.
+
+        Args:
+            content (str): Piped input string to be HTML-inlined.
+
+        Returns:
+            str: The HTML-inlined string.
+        """
+        return content.replace("\n", "<br>")
+
 
 class MetadockEnv(MetadockNamespace):
-    """Jinja namespace for the global Metadock environment, including all global exports, filters, and namespaces.
+    """Jinja namespace for the global Metadock environment, including all global macros, filters, and namespaces.
 
-    Exports:
+    **Macros**:
+
         debug
 
-    Namespaces:
+    **Namespaces**:
+
         html
         md
 
-    Filters:
+    **Filters**:
+
         chain
         inline
         with_prefix
         with_suffix
+        wrap
         zip
     """
 
@@ -317,23 +357,23 @@ class MetadockEnv(MetadockNamespace):
     html = MetadockHtmlNamespace()
     exports = ["debug"]
     namespaces = ["html", "md"]
-    filters = ["chain", "inline", "with_prefix", "with_suffix", "zip"]
+    filters = ["chain", "inline", "with_prefix", "with_suffix", "wrap", "zip"]
 
     def debug(self, message: str) -> Literal[""]:
         """Prints a debug message to stdout, and returns an empty string."""
         print(message)
         return ""
 
-    def chain_filter(self, values: Sequence[Iterable[Any]]) -> Iterable[Any]:
+    def chain_filter(self, iterables: Sequence[Iterable[Any]]) -> Iterable[Any]:
         """Filter which flattens a sequence of iterables into a single iterable.
 
         Args:
-            values (Sequence[Iterable[Any]]): Piped input sequence of iterables to be flattened.
+            iterables (Sequence[Iterable[Any]]): Piped input sequence of iterables to be flattened.
 
         Returns:
             Iterable[Any]: The flattened iterable.
         """
-        return itertools.chain.from_iterable(values)
+        return itertools.chain.from_iterable(iterables)
 
     def inline_filter(self, value: str) -> str:
         """Filter which inlines a string by replacing all newlines with spaces, and all double spaces with single
@@ -348,7 +388,7 @@ class MetadockEnv(MetadockNamespace):
         return value.replace("\n", " ").replace("  ", " ")
 
     def with_prefix_filter(self, value: str, prefix: str, sep: str = "") -> str:
-        """Filter which concatenates a prefix to a string, with an optional separator.
+        """Filter which prepends a prefix to a string, with an optional separator.
 
         Args:
             value (str): Piped input string to be prefixed.
@@ -361,7 +401,7 @@ class MetadockEnv(MetadockNamespace):
         return sep.join((prefix, value))
 
     def with_suffix_filter(self, value: str, suffix: str, sep: str = "") -> str:
-        """Filter which concatenates a suffix to a string, with an optional separator.
+        """Filter which appends a suffix to a string, with an optional separator.
 
         Args:
             value (str): Piped input string to be suffixed.
@@ -372,6 +412,18 @@ class MetadockEnv(MetadockNamespace):
             str: The suffixed string.
         """
         return sep.join((value, suffix))
+
+    def wrap_filter(self, value: str, wrap: str) -> str:
+        """Filter which wraps an inner string with a given outer string.
+
+        Args:
+            value (str): Piped input string to be wrapped.
+            wrap (str): String to wrap the input string with.
+
+        Returns:
+            str: The wrapped string.
+        """
+        return wrap + value + wrap
 
     def zip_filter(self, input_iterable: Iterable[Any], *iterables: Iterable[Any]) -> Iterable[tuple[Any, ...]]:
         """Filter which zips an input iterable with one or more iterables.

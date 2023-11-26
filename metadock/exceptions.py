@@ -12,3 +12,7 @@ class MetadockTemplateParsingException(MetadockException):
 
 class MetadockContentSchematicParsingException(MetadockException):
     pass
+
+
+class MetadockYamlImportError(MetadockException):
+    pass

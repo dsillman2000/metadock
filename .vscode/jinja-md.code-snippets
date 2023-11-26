@@ -1,0 +1,215 @@
+{
+    
+    // Metadock snippets for macros and filters in global namespace
+    
+    "(macro) Debug message": {
+        "scope": "jinja-md,md",
+        "prefix": "debug",
+        "body": [
+            "debug($1)"
+        ],
+        "description": "Debug message macro"
+    },
+    "(filter) Chain iterables": {
+        "scope": "jinja-md,md",
+        "prefix": "chain",
+        "body": [
+            "chain"
+        ],
+        "description": "Chain iterables filter"
+    },
+    "(filter) Inline text": {
+        "scope": "jinja-md,md",
+        "prefix": "inline",
+        "body": [
+            "inline"
+        ],
+        "description": "Inline text filter"
+    },
+    "(filter) With prefix": {
+        "scope": "jinja-md,md",
+        "prefix": "with_prefix",
+        "body": [
+            "with_prefix($1)"
+        ],
+        "description": "With prefix filter"
+    },
+    "(filter) With suffix": {
+        "scope": "jinja-md,md",
+        "prefix": "with_suffix",
+        "body": [
+            "with_suffix($1)"
+        ],
+        "description": "With suffix filter"
+    },
+    "(filter) Wrap text": {
+        "scope": "jinja-md,md",
+        "prefix": "wrap",
+        "body": [
+            "wrap($1)"
+        ],
+        "description": "Wrap text filter"
+    },
+    "(filter) Zip iterables": {
+        "scope": "jinja-md,md",
+        "prefix": "zip",
+        "body": [
+            "zip($1)"
+        ],
+        "description": "Zip iterables filter"
+    },
+    
+    // Metadock snippets for macros and filters in md namespace
+    
+    "(macro) Markdown blockquote": {
+        "scope": "jinja-md,md",
+        "prefix": "md.blockquote",
+        "body": [
+            "md.blockquote($1)"
+        ],
+        "description": "Markdown blockquote macro"
+    },
+    
+    "(macro) Markdown inline code": {
+        "scope": "jinja-md,md",
+        "prefix": "md.code",
+        "body": [
+            "md.code($1)"
+        ],
+        "description": "Markdown inline code macro"
+    },
+    
+    "(macro) Markdown codeblock": {
+        "scope": "jinja-md,md",
+        "prefix": "md.codeblock",
+        "body": [
+            "md.codeblock($1)"
+        ],
+        "description": "Markdown codeblock macro"
+    },
+    
+    "(macro) Markdown list": {
+        "scope": "jinja-md,md",
+        "prefix": "md.list",
+        "body": [
+            "md.list($1)"
+        ],
+        "description": "Markdown list macro"
+    },
+    
+    "(macro) Markdown table head": {
+        "scope": "jinja-md,md",
+        "prefix": "md.tablehead",
+        "body": [
+            "md.tablehead($1)"
+        ],
+        "description": "Markdown table head macro"
+    },
+    
+    "(macro) Markdown table row": {
+        "scope": "jinja-md,md",
+        "prefix": "md.tablerow",
+        "body": [
+            "md.tablerow($1)"
+        ],
+        "description": "Markdown table row macro"
+    },
+    "(filter) Markdown convert": {
+        "scope": "jinja-md,md",
+        "prefix": "md.convert",
+        "body": [
+            "md.convert($1)"
+        ],
+        "description": "Markdown convert filter"
+    },
+    "(filter) Markdown list": {
+        "scope": "jinja-md,md",
+        "prefix": "md.list",
+        "body": [
+            "md.list"
+        ],
+        "description": "Markdown list filter"
+    },
+    
+    // Metadock snippets for macros and filters in html namespace
+    
+    "(macro) HTML bold": {
+        "scope": "jinja-md,md",
+        "prefix": "html.bold",
+        "body": [
+            "html.bold($1)"
+        ],
+        "description": "HTML bold macro"
+    },
+    
+    "(macro) HTML code": {
+        "scope": "jinja-md,md",
+        "prefix": "html.code",
+        "body": [
+            "html.code($1)"
+        ],
+        "description": "HTML code macro"
+    },
+    
+    "(macro) HTML details": {
+        "scope": "jinja-md,md",
+        "prefix": "html.details",
+        "body": [
+            "html.details($1)"
+        ],
+        "description": "HTML details macro"
+    },
+    
+    "(macro) HTML italic": {
+        "scope": "jinja-md,md",
+        "prefix": "html.italic",
+        "body": [
+            "html.italic($1)"
+        ],
+        "description": "HTML italic macro"
+    },
+    
+    "(macro) HTML pre": {
+        "scope": "jinja-md,md",
+        "prefix": "html.pre",
+        "body": [
+            "html.pre($1)"
+        ],
+        "description": "HTML pre macro"
+    },
+    
+    "(macro) HTML summary": {
+        "scope": "jinja-md,md",
+        "prefix": "html.summary",
+        "body": [
+            "html.summary($1)"
+        ],
+        "description": "HTML summary macro"
+    },
+    
+    "(macro) HTML underline": {
+        "scope": "jinja-md,md",
+        "prefix": "html.underline",
+        "body": [
+            "html.underline($1)"
+        ],
+        "description": "HTML underline macro"
+    },
+    "(filter) HTML escape": {
+        "scope": "jinja-md,md",
+        "prefix": "html.escape",
+        "body": [
+            "html.escape"
+        ],
+        "description": "HTML escape filter"
+    },
+    "(filter) HTML inline": {
+        "scope": "jinja-md,md",
+        "prefix": "html.inline",
+        "body": [
+            "html.inline"
+        ],
+        "description": "HTML inline filter"
+    },
+    
+}

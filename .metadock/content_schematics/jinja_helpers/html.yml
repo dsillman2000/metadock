@@ -1,0 +1,151 @@
+html:
+  docstring: |
+    Jinja namespace which owns HTML-related functions and filters.
+
+  macros:
+    bold:
+      docstring: |
+        Wraps a string in HTML bold tags (<b></b>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.bold('This is bold text.') }}").render()
+        '<b>This is bold text.</b>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.bold
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML bold
+        snippet_body:
+          - html.bold($1)
+
+    code:
+      docstring: |
+        Wraps a string in HTML code tags (<code></code>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.code('This is code text.') }}").render()
+        '<code>This is code text.</code>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.code
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML code
+        snippet_body:
+          - html.code($1)
+
+    details:
+      docstring: |
+        Wraps a string in line-broken HTML details tags (<details></details>). Multiple arguments get separated by two 
+        line breaks.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.details('This is details text.') }}").render()
+        '<details>\nThis is details text.\n</details>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.details
+      signature: "(self, *contents: str) -> str"
+      intellisense:
+        snippet_key: HTML details
+        snippet_body:
+          - html.details($1)
+
+    italic:
+      docstring: |
+        Wraps a string in HTML italic tags (<i></i>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.italic('This is italic text.') }}").render()
+        '<i>This is italic text.</i>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.italic
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML italic
+        snippet_body:
+          - html.italic($1)
+
+    pre:
+      docstring: |
+        Wraps a string in preformatted HTML pre tags (<pre></pre>), and indents the content by the
+        given amount.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.pre('This is code text.', indent = 4) }}").render()
+        '<pre>    This is code text.</pre>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.pre
+      signature: "(self, content: str, indent: int = 0) -> str"
+      intellisense:
+        snippet_key: HTML pre
+        snippet_body:
+          - html.pre($1)
+
+    summary:
+      docstring: |
+        Wraps a string in line-broken HTML summary tags (<summary>\n\n</summary>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.summary('This is summary text.') }}").render()
+        '<summary>\nThis is summary text.\n</summary>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.summary
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML summary
+        snippet_body:
+          - html.summary($1)
+
+    underline:
+      docstring: |
+        Wraps a string in HTML underline tags (<u></u>).
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ html.underline('This is underlined text.') }}").render()
+        '<u>This is underlined text.</u>'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.underline
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML underline
+        snippet_body:
+          - html.underline($1)
+
+  filters:
+    escape:
+      docstring: |
+        Filter which escapes a string by replacing all HTML special characters with their HTML entity equivalents.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ '<p>This is a paragraph.</p>' | html.escape }}").render()
+        '&lt;p&gt;This is a paragraph.&lt;/p&gt;'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.escape_filter
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML escape
+        snippet_body:
+          - html.escape
+
+    inline:
+      docstring: |
+        Filter which inlines a string by replacing all newlines with HTML line-breaks <br> singleton tags.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' | html.inline }}").render()
+        'This is a multi-line string.<br>This is the second line.<br>And the third.'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.inline_filter
+      signature: "(self, content: str) -> str"
+      intellisense:
+        snippet_key: HTML inline
+        snippet_body:
+          - html.inline

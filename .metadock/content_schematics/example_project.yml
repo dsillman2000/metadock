@@ -1,0 +1,159 @@
+example_project:
+  structure: |
+    MyProject/
+      - ...
+      - <my project content>
+      - ...
+      - .metadock/
+          - templated_documents/
+              - gitlab_mr_template.md
+          - content_schematics/
+              - gitlab_mr__feature1.yml
+              - gitlab_mr__otherfeature.yml
+          - generated_documents/
+              - gitlab_mr__feature1.md
+              - gitlab_mr__feature1.html
+              - gitlab_mr__otherfeature.md
+              - gitlab_mr__otherfeature.html
+
+  templated_documents:
+    gitlab_mr_template.md: |
+      {%- set jira_project_name = jira.get('project_name') -%}
+      {%- set jira_project_id = jira.get('project_id') -%}
+      {%- set jira_ticket_num = jira.get('ticket_num') -%}
+      {%- set jira_ticket_id = jira_project_name ~ "-" ~ jira_ticket_num -%}
+      {%- set mr_summary = merge_request.get('summary') -%}
+      # [{{ jira_ticket_id }}] {{ mr_summary }}
+
+      Welcome to my MR. Some of the changes are listed below:
+
+      {% for change in merge_request.get('changes', []) -%}
+      {{ loop.index }}. {{ change }}{{ "\n" if not loop.last else "" }}
+      {%- endfor %}
+
+      {% if merge_request.get('breaking_changes') -%}
+      In addition to the changes above, there are also a few breaking changes introduced in this MR:
+
+      {% for breaking_change in merge_request.get('breaking_changes') -%}
+      - {{ breaking_change.get('summary') }}
+        - **Affected downstream stakeholders**: {{ breaking_change.get('affected_downstream', [{'id': 'None'}]) | map(attribute='id') | join(", ") }}.
+        - **Suggested remedy**: {{ breaking_change.get('suggested_remedy', 'None') }}{{ "\n" if not loop.last else "" }}
+      {%- endfor -%}
+      {%- endif %}
+
+      For more information, please check out the Jira ticket associated with this MR, {{ jira_ticket_id }}.
+
+  content_schematics:
+    gitlab_mr__feature1.yml: |
+      content_schematics:
+
+      - name: gitlab_mr__feature1
+        template: gitlab_mr_template.md
+        target_formats: [ md+html, md ]
+
+        context:
+
+          jira:
+            project_name: "IGDP"
+            project_id: "12001"
+            ticket_num: "13"
+
+          merge_request:
+            summary: Adding software version as hard requirement for staging
+            changes:
+              - "Added software version to staging model."
+              - "Added unit tests for valid software version, invalid software version, missing software version."
+            breaking_changes:
+              - summary: "Dropping all records which are missing software version."
+                affected_downstream:
+                  - id: Service
+                    email: service@company.com
+                  - id: Analytics
+                    email: analytics-data@company.com
+                suggested_remedy: |
+                  - Drop all records which are missing software version.
+                  - Add software version as a hard requirement for staging.
+
+    import_key_examples.yml: |
+      content_schematics:
+
+      - name: alerting_project_proposal
+        template: airflow_project_proposal_template.md
+        target_formats: [ md+html, md ]
+
+        context:
+
+          jira:
+
+            # "block" syntax for importing a root-level key "IGDP"
+            project:
+              import: jira/projects.yml
+              key: IGDP
+
+            # "flow" syntax for importing a sub-key, "David_Sillman" inside "eng_identity"
+            code_owners: 
+              - { import: jira/identities.yml, key: eng_identity.David_Sillman }
+
+            # "flow" syntax for importing a sub-key using a merge key ("<<"),
+            <<: { import: team_contexts/data.yml, key: resources.alerting_channels }
+
+            # "block" syntax for importing multiple subkeys from multiple files using a merge key,
+            <<:
+              - import: team_contexts/data_contacts.yml
+                key: contacts.email
+              - import: team_contexts/data_push_api.yml
+                key: push_api.contracts
+
+    import_key_examples_2.yml: |
+      content_schematics:
+
+      - name: confluence_docs_summary
+        template: confluence/data_docs/confluence_docs_summary_template.md
+        target_formats: [ md+html, md ]
+        context:
+
+          # "flow" syntax for a single whole-file import,
+          all_contracts: { import: confluence/data_docs/contracts.yml }
+
+          # "block" syntax for importing multiple whole files using a merge key,
+          <<:
+            - import: confluence/data_docs/projects.yml
+            - import: confluence/data_docs/sources.yml
+
+  generated_documents:
+    gitlab_mr__feature1.md: |
+      # [IGDP-13] Adding software version as hard requirement for staging
+
+      Welcome to my MR. Some of the changes are listed below:
+
+      1. Added software version to staging model.
+      2. Added unit tests for valid software version, invalid software version, missing software version.
+
+      In addition to the changes above, there are also a few breaking changes introduced in this MR:
+
+      - Dropping all records which are missing software version.
+        - **Affected downstream stakeholders**: Service, Analytics.
+        - **Suggested remedy**:
+          - Drop all records which are missing software version.
+          - Add software version as a hard requirement for staging.
+
+      For more information, please check out the Jira ticket associated with this MR, IGDP-13.
+
+    gitlab_mr__feature1.html: |
+      <h1>[IGDP-13] Adding software version as hard requirement for staging</h1>
+      <p>Welcome to my MR. Some of the changes are listed below:</p>
+      <ol>
+      <li>Added software version to staging model.</li>
+      <li>Added unit tests for valid software version, invalid software version, missing software version.</li>
+      </ol>
+      <p>In addition to the changes above, there are also a few breaking changes introduced in this MR:</p>
+      <ul>
+      <li>
+      Dropping all records which are missing software version.<ul>
+      <li><strong>Affected downstream stakeholders</strong>: Service, Analytics.</li>
+      <li><strong>Suggested remedy</strong>: Handle deletions manualy, using the software version column in the exposures to identify source records
+      which will be dropped, and drop them in the target environment after our change is deployed.</li>
+      </ul>
+      </li>
+      </ul>
+      <p>For more information, please check out the Jira ticket associated with this MR, IGDP-13.</p>

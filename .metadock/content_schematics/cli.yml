@@ -1,0 +1,45 @@
+cli:
+  usage_string: |
+    usage: metadock [-h] [-p PROJECT_DIR] {init,validate,build,list,clean} ...
+
+    Generates and formats Jinja documentation templates from yaml sources.
+
+    positional arguments:
+      {init,validate,build,list,clean}
+                            Metadock command
+        init                Initialize a new Metadock project in a folder which does not currently have one.
+        validate            Validate the structure of an existing Metadock project.
+        build               Build a Metadock project, rendering some or all documents.
+        list                List all recognized documents which can be generated from a given selection.
+        clean               Cleans the generated_documents directory for the Metadock project.
+
+    options:
+      -h, --help            show this help message and exit
+      -p PROJECT_DIR, --project-dir PROJECT_DIR
+                            Project directory containing a .metadock directory.
+  
+  commands:
+    init:
+      description: Used to initialize a fresh Metadock project in a folder which does not currently have one.
+      usage: metadock [-p PROJECT_DIR] init
+      python_interface: { import: python_interfaces.yml, key: python_interfaces.init }
+
+    validate:
+      description: Used to validate the structure of an existing Metadock project.
+      usage: metadock [-p PROJECT_DIR] validate
+      python_interface: { import: python_interfaces.yml, key: python_interfaces.validate }
+
+    build:
+      description: Used to build a Metadock project, rendering some or all documents.
+      usage: metadock [-p PROJECT_DIR] build [-s SCHEMATIC_GLOBS [SCHEMATIC_GLOBS ...]] [-t TEMPLATE_GLOBS [TEMPLATE_GLOBS ...]]
+      python_interface: { import: python_interfaces.yml, key: python_interfaces.build }
+
+    list:
+      description: Used to list all recognized documents which can be generated from a given selection.
+      usage: metadock [-p PROJECT_DIR] list [-s SCHEMATIC_GLOBS [SCHEMATIC_GLOBS ...]] [-t TEMPLATE_GLOBS [TEMPLATE_GLOBS ...]]
+      python_interface: { import: python_interfaces.yml, key: python_interfaces.list }
+    
+    clean:
+      description: Used to clean the generated_documents directory for the Metadock project.
+      usage: metadock [-p PROJECT_DIR] clean
+      python_interface: { import: python_interfaces.yml, key: python_interfaces.clean }

@@ -439,9 +439,7 @@ class MetadockContentSchematic(pydantic.BaseModel):
         for target_format in self.target_formats:
             target_format = MetadockTargetFormatFactory.target_format(target_format)
             templated_document = project.templated_documents[self.template]
-            rendered_document = templated_document.jinja_template(project).render(
-                self.context
-            )  #  | MetadockEnv().dict())
+            rendered_document = templated_document.jinja_template(project).render(self.context)
             post_processed_document = target_format.handler(rendered_document)
 
             compiled_targets[target_format.identifier] = post_processed_document
@@ -451,7 +449,8 @@ class MetadockContentSchematic(pydantic.BaseModel):
     @classmethod
     def collect_from_file(cls, yaml_path: Path | str) -> "list[MetadockContentSchematic]":
         """
-        Collects content schematics from a YAML file. Flattens any merge keys in the YAML specification.
+        Collects content schematics from a YAML file. Flattens any merge keys in the YAML specification. Also resolves
+        any external YAML files imported in the context.
 
         Args:
             yaml_path (Path | str): The path to the YAML file.
@@ -461,6 +460,7 @@ class MetadockContentSchematic(pydantic.BaseModel):
 
         Raises:
             MetadockContentSchematicParsingException: If the YAML file is not found or if a required key is missing.
+            MetadockYamlImportError: If an imported YAML key or file is not found (or is not a file).
         """
 
         yaml_path = Path(yaml_path)
@@ -471,24 +471,37 @@ class MetadockContentSchematic(pydantic.BaseModel):
                 "Could not find content schematic file %s" % yaml_path
             )
 
+        """ Read raw content schematics yaml file """
         with yaml_path.open("r") as handle:
             yaml_contents: dict = yaml.load(handle, yaml.BaseLoader)
 
+        """ Determine if there are content schematics in the file """
         defined_schematics = yaml_contents.get("content_schematics", [])
         required_keys = ["name", "target_formats", "template"]
 
+        """ For each schematic defined in the YAML file, """
         for def_schematic in defined_schematics:
+            """validate that it has all of the required keys,"""
             for req_key in required_keys:
                 if not def_schematic.get(req_key):
                     raise exceptions.MetadockContentSchematicParsingException(
                         "Missing required key for content schematic in %s: '%s'" % (yaml_path, req_key)
                     )
+
+            context = def_schematic.get("context", {})
+            """ resolve all imports in the context, including those nested in merge keys. """
+            context = yaml_utils.resolve_all_imports(
+                Path(str(yaml_path).split("/content_schematics/")[0]) / "content_schematics", context
+            )
+            """ Then, flatten all of the merge keys. """
+            context = yaml_utils.flatten_merge_keys(context)
+            """ Schematic is now fully determined. Put into pydantic model. """
             content_schematics.append(
                 cls(
                     name=def_schematic["name"],
                     template=def_schematic["template"],
                     target_formats=def_schematic["target_formats"],
-                    context=yaml_utils.flatten_merge_keys(def_schematic.get("context", {})),
+                    context=context,
                 )
             )
 
