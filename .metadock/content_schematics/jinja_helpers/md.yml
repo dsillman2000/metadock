@@ -2,20 +2,6 @@ md:
   docstring: |
     Jinja Namespace for Markdown-related functions and filters.
 
-    **Macros**:
-
-        blockquote
-        code
-        codeblock
-        list
-        tablehead
-        tablerow
-
-    **Filters**:
-
-        convert
-        list
-
   macros:
     blockquote:
       docstring: |

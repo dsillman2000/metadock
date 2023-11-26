@@ -103,7 +103,7 @@ object, e.g.:
     md.codeblock(
         example_project.get("content_schematics").get("import_key_examples.yml"),
         language="yml",
-    )
+    ) | md.convert
 }}
 
 Note that all paths for the `import` field are relative to the `content_schematics` folder for the project.
@@ -196,6 +196,8 @@ There are no filters available in the {{ namespace }} namespace.
 {%- endset -%}
 {{ namespace_intro }}
 
+<br><br>
+
 #### Jinja macros
 {{ ns_macro_intro }}
 
@@ -203,12 +205,18 @@ There are no filters available in the {{ namespace }} namespace.
 {{ html.details(html.summary(html.bold("Jinja macro reference")), ns_macro_table) }}
 {%- endif %}
 
+<br><br>
+
 #### Jinja filters
 {{ ns_filter_intro }}
 
 {% if namespace_spec.get("filters", {}).keys() | length -%}
 {{ html.details(html.summary(html.bold("Jinja filter reference")), ns_filter_table) }}
 {% endif %}
+<br><br>
+
+---
+
 {% endfor %}
 
 ## Acknowledgements

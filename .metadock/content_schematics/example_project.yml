@@ -90,19 +90,19 @@ example_project:
               import: jira/projects.yml
               key: IGDP
 
-            # "flow" syntax for importing a sub-key, "David_Sillman" inside "eng_identity"
-            code_owners: 
-              - { import: jira/identities.yml, key: eng_identity.David_Sillman }
+          # "flow" syntax for importing a sub-key, "David_Sillman" inside "eng_identity"
+          code_owners: 
+            - { import: jira/identities.yml, key: eng_identity.David_Sillman }
 
-            # "flow" syntax for importing a sub-key using a merge key ("<<"),
-            <<: { import: team_contexts/data.yml, key: resources.alerting_channels }
+          # "flow" syntax for importing a sub-key using a merge key ("<<"),
+          <<: { import: team_contexts/data.yml, key: resources.alerting_channels }
 
-            # "block" syntax for importing multiple subkeys from multiple files using a merge key,
-            <<:
-              - import: team_contexts/data_contacts.yml
-                key: contacts.email
-              - import: team_contexts/data_push_api.yml
-                key: push_api.contracts
+          # "block" syntax for importing multiple subkeys from multiple files using a merge key,
+          <<:
+            - import: team_contexts/data_contacts.yml
+              key: contacts.email
+            - import: team_contexts/data_push_api.yml
+              key: push_api.contracts
 
     import_key_examples_2.yml: |
       content_schematics:

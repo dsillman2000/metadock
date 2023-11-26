@@ -10,7 +10,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.bold('This is bold text.') }}").render()
-        '<b>This is bold text.</b>'
+        '&lt;b&gt;This is bold text.&lt;/b&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.bold
       signature: "(self, content: str) -> str"
@@ -26,7 +26,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.code('This is code text.') }}").render()
-        '<code>This is code text.</code>'
+        '&lt;code&gt;This is code text.&lt;/code&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.code
       signature: "(self, content: str) -> str"
@@ -43,7 +43,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.details('This is details text.') }}").render()
-        '<details>\nThis is details text.\n</details>'
+        '&lt;details&gt;\nThis is details text.\n&lt;/details&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.details
       signature: "(self, *contents: str) -> str"
@@ -59,7 +59,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.italic('This is italic text.') }}").render()
-        '<i>This is italic text.</i>'
+        '&lt;i&gt;This is italic text.&lt;/i&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.italic
       signature: "(self, content: str) -> str"
@@ -76,7 +76,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.pre('This is code text.', indent = 4) }}").render()
-        '<pre>    This is code text.</pre>'
+        '&lt;pre&gt;    This is code text.&lt;/pre&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.pre
       signature: "(self, content: str, indent: int = 0) -> str"
@@ -92,7 +92,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.summary('This is summary text.') }}").render()
-        '<summary>\nThis is summary text.\n</summary>'
+        '&lt;summary&gt;\nThis is summary text.\n&lt;/summary&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.summary
       signature: "(self, content: str) -> str"
@@ -108,7 +108,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ html.underline('This is underlined text.') }}").render()
-        '<u>This is underlined text.</u>'
+        '&lt;u&gt;This is underlined text.&lt;/u&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.underline
       signature: "(self, content: str) -> str"
@@ -124,8 +124,8 @@ html:
       example: |
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
-        >>> env.from_string("{{ '<p>This is a paragraph.</p>' | html.escape }}").render()
-        '&lt;p&gt;This is a paragraph.&lt;/p&gt;'
+        >>> env.from_string("{{ '&lt;p&gt;This is a paragraph.&lt;/p&gt;' | html.escape }}").render()
+        '\&lt;p\&gt;This is a paragraph.\&lt;/p\&gt;'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.escape_filter
       signature: "(self, content: str) -> str"
@@ -141,7 +141,7 @@ html:
         >>> from metadock.env import MetadockEnv
         >>> env = MetadockEnv().jinja_environment()
         >>> env.from_string("{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' | html.inline }}").render()
-        'This is a multi-line string.<br>This is the second line.<br>And the third.'
+        'This is a multi-line string.&lt;br&gt;This is the second line.&lt;br&gt;And the third.'
       source_file: metadock/env.py
       method_name: metadock.env.MetadockHtmlNamespace.inline_filter
       signature: "(self, content: str) -> str"
