@@ -233,6 +233,8 @@ class MetadockProject:
                 generated_documents.append(generated_document)
 
                 if not generated_document.status.value == "nochange":
+                    if not generated_filepath.parent.exists():
+                        os.makedirs(generated_filepath.parent)
                     with generated_filepath.open("w") as handle:
                         handle.write(str(compiled_document))
 
