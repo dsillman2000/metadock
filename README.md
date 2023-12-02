@@ -354,6 +354,7 @@ Jinja namespace for the global Metadock environment, including all global macros
 The following macros are available in the global namespace:
 
 - `debug`
+- `ref`
 
 <details>
 <summary>
@@ -363,6 +364,7 @@ The following macros are available in the global namespace:
 | <b>Macro</b> | <b>Signature</b> | <b>Doc</b> |
 | --- | --- | --- |
 | <pre>debug</pre> | <pre>metadock.env.MetadockEnv.debug: (self, message: str) -> None</pre> | Prints a debug message to stdout, and returns an empty string.<br/><br/><pre>>>> from metadock.env import MetadockEnv<br>>>> env = MetadockEnv().jinja_environment()<br>>>> env.from_string("No changes!{{ debug('This is a debug message.') }}").render()<br>This is a debug message.<br>'No changes!'<br></pre> |
+| <pre>ref</pre> | <pre>metadock.env.MetadockEnv.ref: (self, document_name: str) -> str</pre> | Renders and inserts the content from a given generated document in a given Metadock project. <br/><br/><pre>>>> from metadock.env import MetadockEnv<br>>>> from metadock.project import MetadockProject<br>>>> env = MetadockEnv().jinja_environment()<br>>>> project = MetadockProject()<br>>>> env.from_string("{{ ref('my_generated_document') }}").render()<br>'Rendered contents of my_generated_document'<br></pre> |
 
 </details>
 

@@ -312,6 +312,7 @@ and filters which can be used to make formatting content easier. The macros and 
 <p>The following macros are available in the global namespace:</p>
 <ul>
 <li><code>debug</code></li>
+<li><code>ref</code></li>
 </ul>
 <details>
 <summary>
@@ -330,6 +331,11 @@ and filters which can be used to make formatting content easier. The macros and 
 <td><pre>debug</pre></td>
 <td><pre>metadock.env.MetadockEnv.debug: (self, message: str) -&gt; None</pre></td>
 <td>Prints a debug message to stdout, and returns an empty string.<br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;No changes!{{ debug('This is a debug message.') }}&quot;).render()<br>This is a debug message.<br>'No changes!'<br></pre></td>
+</tr>
+<tr>
+<td><pre>ref</pre></td>
+<td><pre>metadock.env.MetadockEnv.ref: (self, document_name: str) -&gt; str</pre></td>
+<td>Renders and inserts the content from a given generated document in a given Metadock project. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; from metadock.project import MetadockProject<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; project = MetadockProject()<br>&gt;&gt;&gt; env.from_string(&quot;{{ ref('my_generated_document') }}&quot;).render()<br>'Rendered contents of my_generated_document'<br></pre></td>
 </tr>
 </tbody></table></details>
 <p><br><br></p>

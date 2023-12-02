@@ -10,6 +10,15 @@
         ],
         "description": "Debug message macro"
     },
+    
+    "(macro) Reference generated document": {
+        "scope": "jinja-md,md",
+        "prefix": "ref",
+        "body": [
+            "ref($1)"
+        ],
+        "description": "Reference generated document macro"
+    },
     "(filter) Chain iterables": {
         "scope": "jinja-md,md",
         "prefix": "chain",
