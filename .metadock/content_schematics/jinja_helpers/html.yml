@@ -8,7 +8,7 @@ html:
         Wraps a string in HTML bold tags (<b></b>).
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ html.bold('This is bold text.') }}").render()
         '&lt;b&gt;This is bold text.&lt;/b&gt;'
       source_file: metadock/env.py
@@ -24,7 +24,7 @@ html:
         Wraps a string in HTML code tags (<code></code>).
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ html.code('This is code text.') }}").render()
         '&lt;code&gt;This is code text.&lt;/code&gt;'
       source_file: metadock/env.py
@@ -41,7 +41,7 @@ html:
         line breaks.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ html.details('This is details text.') }}").render()
         '&lt;details&gt;\nThis is details text.\n&lt;/details&gt;'
       source_file: metadock/env.py
@@ -57,7 +57,7 @@ html:
         Wraps a string in HTML italic tags (<i></i>).
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ html.italic('This is italic text.') }}").render()
         '&lt;i&gt;This is italic text.&lt;/i&gt;'
       source_file: metadock/env.py
@@ -74,7 +74,7 @@ html:
         given amount.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ html.pre('This is code text.', indent = 4) }}").render()
         '&lt;pre&gt;    This is code text.&lt;/pre&gt;'
       source_file: metadock/env.py
@@ -90,7 +90,7 @@ html:
         Wraps a string in line-broken HTML summary tags (<summary>\n\n</summary>).
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ html.summary('This is summary text.') }}").render()
         '&lt;summary&gt;\nThis is summary text.\n&lt;/summary&gt;'
       source_file: metadock/env.py
@@ -123,7 +123,7 @@ html:
         Filter which escapes a string by replacing all HTML special characters with their HTML entity equivalents.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ '&lt;p&gt;This is a paragraph.&lt;/p&gt;' | html.escape }}").render()
         '\&lt;p\&gt;This is a paragraph.\&lt;/p\&gt;'
       source_file: metadock/env.py
@@ -139,7 +139,7 @@ html:
         Filter which inlines a string by replacing all newlines with HTML line-breaks <br> singleton tags.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' | html.inline }}").render()
         'This is a multi-line string.&lt;br&gt;This is the second line.&lt;br&gt;And the third.'
       source_file: metadock/env.py
@@ -155,7 +155,7 @@ html:
         Filter which wraps a string in a given HTML tag, with optional attributes.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ 'This is a string.' | html.wrap_tag('p', {'id': 'my_paragraph') }}").render()
         '&lt;p id="my_paragraph"&gt;This is a string.&lt;/p&gt;'
       source_file: metadock/env.py

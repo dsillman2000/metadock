@@ -8,7 +8,7 @@ md:
         Produces a Markdown blockquote from the given content by prepending each line with a gt symbol ("> ").
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ md.blockquote('This is a blockquote.') }}").render()
         '> This is a blockquote.'
       source_file: metadock/env.py
@@ -24,7 +24,7 @@ md:
         Produces a Markdown inline code block from the given content by wrapping the string in graves ("\`").
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ md.code('This is an inline code block.') }}").render()
         '`This is an inline code block.`'
       source_file: metadock/env.py
@@ -41,7 +41,7 @@ md:
         and optionally specifies a language.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ md.codeblock('This is a codeblock.', language = 'sh') }}").render()
         '```sh\nThis is a codeblock.\n```'
       source_file: metadock/env.py
@@ -58,7 +58,7 @@ md:
         arguments are, themselves, formatted as Markdown lists, then they are simply indented as sublists.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string(
         ...     "{{ md.list('This is a list.', md.list('This is a sublist,', 'in two pieces.')) }}"
         ... ).render()
@@ -78,7 +78,7 @@ md:
         ("\\"). To bold the header cell contents, supply `bold = true`.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string(
         ...     "{{ md.tablehead('Column 1', 'Column 2', 'Column 3', bold = true) }}"
         ... ).render()
@@ -97,7 +97,7 @@ md:
         result in pipes. Cell contents have their pipes escaped with a backslash ("\\").
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string(
         ...     "{{ md.tablehead('Column 1', 'Column 2', 'Column 3') }}\n"
         ...     "{{ md.tablerow('Value 1', 'Value 2', 'Value 3') }}"
@@ -117,7 +117,7 @@ md:
         Filter which converts Markdown content to HTML, by invoking `marko.convert` (using github-flavored md).
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string("{{ '# This is a heading\n\n> And a block quote.' | md.convert }}").render()
         '<h1>This is a heading</h1>\n<blockquote>\n<p>And a block quote.</p>\n</blockquote>\n'
       source_file: metadock/env.py
@@ -134,7 +134,7 @@ md:
         element.
       example: |
         >>> from metadock.env import MetadockEnv
-        >>> env = MetadockEnv().jinja_environment()
+        >>> env = MetadockEnv(...).jinja_environment()
         >>> env.from_string(
         ...     "{{ ['This is a list.', 'This is a second element'] | md.list }}\n"
         ... ).render()
