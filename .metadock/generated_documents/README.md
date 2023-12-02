@@ -506,6 +506,7 @@ The following filters are available in the html namespace:
 
 - `html.escape`
 - `html.inline`
+- `html.wrap_tag`
 
 <details>
 <summary>
@@ -516,6 +517,7 @@ The following filters are available in the html namespace:
 | --- | --- | --- |
 | <pre>html.escape</pre> | <pre>metadock.env.MetadockHtmlNamespace.escape_filter: (self, content: str) -> str</pre> | Filter which escapes a string by replacing all HTML special characters with their HTML entity equivalents. <br/><br/><pre>>>> from metadock.env import MetadockEnv<br>>>> env = MetadockEnv().jinja_environment()<br>>>> env.from_string("{{ '&lt;p&gt;This is a paragraph.&lt;/p&gt;' \| html.escape }}").render()<br>'\&lt;p\&gt;This is a paragraph.\&lt;/p\&gt;'<br></pre> |
 | <pre>html.inline</pre> | <pre>metadock.env.MetadockHtmlNamespace.inline_filter: (self, content: str) -> str</pre> | Filter which inlines a string by replacing all newlines with HTML line-breaks &lt;br&gt; singleton tags. <br/><br/><pre>>>> from metadock.env import MetadockEnv<br>>>> env = MetadockEnv().jinja_environment()<br>>>> env.from_string("{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' \| html.inline }}").render()<br>'This is a multi-line string.&lt;br&gt;This is the second line.&lt;br&gt;And the third.'<br></pre> |
+| <pre>html.wrap_tag</pre> | <pre>metadock.env.MetadockHtmlNamespace.wrap_tag_filter: (self, content: str, tag: str, attributes: dict = {}) -> str</pre> | Filter which wraps a string in a given HTML tag, with optional attributes. <br/><br/><pre>>>> from metadock.env import MetadockEnv<br>>>> env = MetadockEnv().jinja_environment()<br>>>> env.from_string("{{ 'This is a string.' \| html.wrap_tag('p', {'id': 'my_paragraph') }}").render()<br>'&lt;p id="my_paragraph"&gt;This is a string.&lt;/p&gt;'<br></pre> |
 
 </details>
 

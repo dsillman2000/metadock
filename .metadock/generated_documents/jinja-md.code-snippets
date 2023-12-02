@@ -220,5 +220,13 @@
         ],
         "description": "HTML inline filter"
     },
+    "(filter) HTML wrap tag": {
+        "scope": "jinja-md,md",
+        "prefix": "html.wrap_tag",
+        "body": [
+            "html.wrap_tag($1)"
+        ],
+        "description": "HTML wrap tag filter"
+    },
     
 }

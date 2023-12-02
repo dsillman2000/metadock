@@ -149,3 +149,19 @@ html:
         snippet_key: HTML inline
         snippet_body:
           - html.inline
+
+    wrap_tag:
+      docstring: |
+        Filter which wraps a string in a given HTML tag, with optional attributes.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> env = MetadockEnv().jinja_environment()
+        >>> env.from_string("{{ 'This is a string.' | html.wrap_tag('p', {'id': 'my_paragraph') }}").render()
+        '&lt;p id="my_paragraph"&gt;This is a string.&lt;/p&gt;'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockHtmlNamespace.wrap_tag_filter
+      signature: "(self, content: str, tag: str, attributes: dict = {}) -> str"
+      intellisense:
+        snippet_key: HTML wrap tag
+        snippet_body:
+          - html.wrap_tag($1)

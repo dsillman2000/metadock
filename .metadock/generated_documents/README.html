@@ -554,6 +554,7 @@ and filters which can be used to make formatting content easier. The macros and 
 <ul>
 <li><code>html.escape</code></li>
 <li><code>html.inline</code></li>
+<li><code>html.wrap_tag</code></li>
 </ul>
 <details>
 <summary>
@@ -577,6 +578,11 @@ and filters which can be used to make formatting content easier. The macros and 
 <td><pre>html.inline</pre></td>
 <td><pre>metadock.env.MetadockHtmlNamespace.inline_filter: (self, content: str) -&gt; str</pre></td>
 <td>Filter which inlines a string by replacing all newlines with HTML line-breaks &lt;br&gt; singleton tags. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a multi-line string.\nThis is the second line.\nAnd the third.' | html.inline }}&quot;).render()<br>'This is a multi-line string.&lt;br&gt;This is the second line.&lt;br&gt;And the third.'<br></pre></td>
+</tr>
+<tr>
+<td><pre>html.wrap_tag</pre></td>
+<td><pre>metadock.env.MetadockHtmlNamespace.wrap_tag_filter: (self, content: str, tag: str, attributes: dict = {}) -&gt; str</pre></td>
+<td>Filter which wraps a string in a given HTML tag, with optional attributes. <br/><br/><pre>&gt;&gt;&gt; from metadock.env import MetadockEnv<br>&gt;&gt;&gt; env = MetadockEnv().jinja_environment()<br>&gt;&gt;&gt; env.from_string(&quot;{{ 'This is a string.' | html.wrap_tag('p', {'id': 'my_paragraph') }}&quot;).render()<br>'&lt;p id=&quot;my_paragraph&quot;&gt;This is a string.&lt;/p&gt;'<br></pre></td>
 </tr>
 </tbody></table></details>
 <p><br><br></p>

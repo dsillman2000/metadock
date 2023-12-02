@@ -400,6 +400,69 @@ def test_env__wrap(empty_metadock_project_dir):
     assert (project_dir / "generated_documents" / "example1.md").read_text() == ("""||line a, line b, line c||""")
 
 
+def test_env__wrap_tag(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "option_a.md").write_text(
+        """{{ 
+                lines 
+                | map("with_suffix", ", ")
+                | list
+                | map("html.wrap_tag", "li", {"style": "color: blue"}) 
+                | join("")
+                | html.wrap_tag("ul") 
+            }}"""
+    )
+    (project_dir / "templated_documents" / "option_b.md").write_text(
+        """{{ 
+                lines 
+                | map("with_suffix", ", ")
+                | list
+                | map("html.wrap_tag", "p", {"style": "color: blue"}) 
+                | md.list
+                | md.convert
+            }}"""
+    )
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        .lines: &lines
+          - This is my first line
+          - This is my second line
+          - This is my third and final line
+
+        content_schematics:
+          - name: example1
+            template: option_a.md
+            target_formats: [ md ]
+            context:
+              lines: *lines
+
+          - name: example2
+            template: option_b.md
+            target_formats: [ md ]
+            context:
+              lines: *lines
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "example1.md").read_text() == (
+        "<ul>"
+        '<li style="color: blue">This is my first line, </li>'
+        '<li style="color: blue">This is my second line, </li>'
+        '<li style="color: blue">This is my third and final line, </li>'
+        "</ul>"
+    )
+    assert (project_dir / "generated_documents" / "example2.md").read_text() == (
+        "<ul>\n"
+        '<li>\n<p style="color: blue">This is my first line, </p>\n</li>\n'
+        '<li>\n<p style="color: blue">This is my second line, </p>\n</li>\n'
+        '<li>\n<p style="color: blue">This is my third and final line, </p></li>\n'
+        "</ul>\n"
+    )
+
+
 def test_env__ref(empty_metadock_project_dir):
     project_dir = empty_metadock_project_dir
     (project_dir / "templated_documents" / "root_document_template.md").write_text(

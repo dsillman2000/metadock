@@ -232,7 +232,7 @@ class MetadockHtmlNamespace(MetadockNamespace):
     """
 
     exports = ["bold", "code", "details", "italic", "pre", "summary", "underline"]
-    filters = ["escape", "inline"]
+    filters = ["escape", "inline", "wrap_tag"]
 
     def bold(self, content: str) -> str:
         """Wraps a string in HTML bold tags (<b></b>).
@@ -338,6 +338,20 @@ class MetadockHtmlNamespace(MetadockNamespace):
             str: The HTML-inlined string.
         """
         return content.replace("\n", "<br>")
+
+    def wrap_tag_filter(self, inner: str, tag: str, attributes: dict = {}) -> str:
+        """Filter which wraps an inner string with a given HTML tag, and optionally attributes.
+
+        Args:
+            inner (str): Piped input string to be wrapped.
+            tag (str): HTML tag to wrap the input string with.
+            attributes (dict, optional): Dictionary of HTML attributes to be applied to the tag. Defaults to empty dict.
+
+        Returns:
+            str: The wrapped string.
+        """
+        _attr_str = " ".join(f'{attr}="{val}"' for attr, val in attributes.items())
+        return f"<{tag}{' ' + _attr_str if _attr_str else ''}>{inner}</{tag}>"
 
 
 class MetadockEnv(MetadockNamespace):
