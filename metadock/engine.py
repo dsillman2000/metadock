@@ -146,7 +146,7 @@ class MetadockProject:
             directory (Path | str): .metadock directory to open
         """
         self.directory = Path(directory)
-        self.environment = MetadockEnv().jinja_environment()
+        self.environment = MetadockEnv(self).jinja_environment()
         # self.environment.globals |= env_dict["exports"]
         # self.environment.globals |= env_dict["namespaces"]
         # self.environment.filters |= env_dict["filters"]

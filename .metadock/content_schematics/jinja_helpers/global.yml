@@ -19,6 +19,24 @@ global:
         snippet_body:
           - debug($1)
 
+    ref:
+      docstring: |
+        Renders and inserts the content from a given generated document in a given Metadock project.
+      example: |
+        >>> from metadock.env import MetadockEnv
+        >>> from metadock.project import MetadockProject
+        >>> env = MetadockEnv().jinja_environment()
+        >>> project = MetadockProject()
+        >>> env.from_string("{{ ref('my_generated_document') }}").render()
+        'Rendered contents of my_generated_document'
+      source_file: metadock/env.py
+      method_name: metadock.env.MetadockEnv.ref
+      signature: "(self, document_name: str) -> str"
+      intellisense:
+        snippet_key: Reference generated document
+        snippet_body:
+          - ref($1)
+
   filters:
     chain:
       docstring: |
