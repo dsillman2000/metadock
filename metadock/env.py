@@ -32,9 +32,18 @@ class MetadockNamespace(abc.ABC):
         filters (list[str]): List of filter names to be exported as attributes of this namespace.
     """
 
+    project: Any  # MetadockProject
     exports: list[str] = []
     namespaces: list[str] = []
     filters: list[Annotated[str, "implementation ends with('_filter')"]] = []
+
+    def __init__(self, project: Any):
+        """Common constructor for types of MetadockNamespace.
+
+        Args:
+            project (MetadockProject): The Metadock project which provides project context to this namespace.
+        """
+        self.project = project
 
     def dict(self) -> dict[Literal["exports", "namespaces", "filters"], dict[str, Any]]:
         """Produces a dictionary of the exports, namespaces, and filters of this namespace in a fashion which can be
@@ -174,7 +183,7 @@ class MetadockMdNamespace(MetadockNamespace):
         """
         _pipe_escaped_cells = tuple(map(lambda cell: cell.replace("|", "\\|"), header_cells))
         if bold:
-            _pipe_escaped_cells = tuple(MetadockHtmlNamespace().bold(cell) for cell in _pipe_escaped_cells)
+            _pipe_escaped_cells = tuple(MetadockHtmlNamespace(self.project).bold(cell) for cell in _pipe_escaped_cells)
         return self.tablerow(*_pipe_escaped_cells) + "\n" + self.tablerow(*(["---"] * len(_pipe_escaped_cells)))
 
     def convert_filter(self, md_content: str) -> str:
@@ -337,6 +346,7 @@ class MetadockEnv(MetadockNamespace):
     **Macros**:
 
         debug
+        ref
 
     **Namespaces**:
 
@@ -353,11 +363,24 @@ class MetadockEnv(MetadockNamespace):
         zip
     """
 
-    md = MetadockMdNamespace()
-    html = MetadockHtmlNamespace()
-    exports = ["debug"]
+    project: Any  # MetadockProject
+    md: MetadockMdNamespace
+    html: MetadockHtmlNamespace
+    exports = ["debug", "ref"]
     namespaces = ["html", "md"]
     filters = ["chain", "inline", "with_prefix", "with_suffix", "wrap", "zip"]
+
+    def __init__(self, project: Any):
+        super().__init__(project)
+        self.md = MetadockMdNamespace(project)
+        self.html = MetadockHtmlNamespace(project)
+
+    def ref(self, document_name: str) -> str:
+        """Renders and inserts the content from a given generated document in a given Metadock project."""
+        gen_docs = self.project.build([document_name])
+        gen_doc = gen_docs.generated_documents[0]
+        generated_path = gen_doc.path
+        return generated_path.read_text()
 
     def debug(self, message: str) -> Literal[""]:
         """Prints a debug message to stdout, and returns an empty string."""

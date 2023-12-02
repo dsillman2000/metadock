@@ -398,3 +398,50 @@ def test_env__wrap(empty_metadock_project_dir):
     metadock.build()
 
     assert (project_dir / "generated_documents" / "example1.md").read_text() == ("""||line a, line b, line c||""")
+
+
+def test_env__ref(empty_metadock_project_dir):
+    project_dir = empty_metadock_project_dir
+    (project_dir / "templated_documents" / "root_document_template.md").write_text(
+        """`RootDocument!`
+Context name = {{ name }}"""
+    )
+    (project_dir / "content_schematics" / "root_doc.yml").write_text(
+        """
+        content_schematics:
+          - name: root_document
+            template: root_document_template.md
+            target_formats: [ md ]
+            context: 
+              name: David
+        """
+    )
+    (project_dir / "templated_documents" / "simple.md").write_text(
+        """Root:
+    {{ ref("root_document") | indent(4) }}
+Context name = {{ name }}"""
+    )
+    (project_dir / "content_schematics" / "schematic1.yml").write_text(
+        """
+        content_schematics:
+          - name: simple
+            template: simple.md
+            target_formats: [ md ]
+            context:
+              name: Nothing.
+        """
+    )
+
+    metadock = MetadockProject(project_dir)
+    metadock.build()
+
+    assert (project_dir / "generated_documents" / "root_document.md").read_text() == (
+        """`RootDocument!`
+Context name = David"""
+    )
+    assert (project_dir / "generated_documents" / "simple.md").read_text() == (
+        """Root:
+    `RootDocument!`
+    Context name = David
+Context name = Nothing."""
+    )
